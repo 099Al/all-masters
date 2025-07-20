@@ -1,9 +1,10 @@
 from aiogram.fsm.context import FSMContext
+from aiogram.types import ContentType
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next
 from aiogram_dialog.widgets.text import Format, Const, List
-from aiogram_dialog.widgets.input import TextInput, ManagedTextInput
+from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
 
 from src.handlers.registration.registarateion_state import RegistrationDialog
@@ -37,7 +38,7 @@ async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: 
 
 window_name = Window(
                 Format("Введите ваше имя"),
-                TextInput(id="name",
+                TextInput(id="input_name",
                           type_factory=str,
                           on_success=save_name
                           ),
@@ -52,7 +53,7 @@ async def save_phone(message: Message, widget: ManagedTextInput, dialog_manager:
 
 window_phone = Window(
                 Format("Введите ваш номер телефона"),
-                TextInput(id="name",
+                TextInput(id="input_phone",
                           type_factory=str,
                           on_success=save_phone
                           ),
@@ -67,7 +68,7 @@ async def save_email(message: Message, widget: ManagedTextInput, dialog_manager:
 
 window_email = Window(
                 Format("Введите ваш email"),
-                TextInput(id="name",
+                TextInput(id="input_email",
                           type_factory=str,
                           on_success=save_email
                           ),
@@ -84,7 +85,7 @@ async def save_specialty(message: Message, widget: ManagedTextInput, dialog_mana
 
 window_specialty = Window(
                 Format("Введите вашу специальность"),
-                TextInput(id="name",
+                TextInput(id="input_specialty",
                           type_factory=str,
                           on_success=save_specialty
                           ),
@@ -100,7 +101,7 @@ async def save_about(message: Message, widget: ManagedTextInput, dialog_manager:
 
 window_about = Window(
                 Format("Напишите о себе"),
-                TextInput(id="name",
+                TextInput(id="input_about",
                           type_factory=str,
                           on_success=save_about
                           ),
@@ -109,16 +110,16 @@ window_about = Window(
 )
 
 
-async def save_photo(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['photo'] = message.text
+async def save_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    dialog_manager.dialog_data['photo'] = message.photo[0].file_id
     await dialog_manager.switch_to(RegistrationDialog.confirm)
 
 
 window_photo = Window(
                 Format("Добавьте фото"),
-                TextInput(id="name",
-                          type_factory=str,
-                          on_success=save_photo
+                MessageInput(id="input_photo",
+                          func=save_photo,
+                          content_types=ContentType.PHOTO
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
                 Next(Const("⏩ Пропустить"), id="skip"),
@@ -139,6 +140,7 @@ window_confirm = Window(
 async def getter_answer(dialog_manager: DialogManager, **kwargs):
     print(dialog_manager)
     #TODO save data to db
+    #load photo and save into folder
     return {}
 
 
