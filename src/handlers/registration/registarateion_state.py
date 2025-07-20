@@ -1,0 +1,14 @@
+from aiogram.fsm.state import StatesGroup, State
+
+class RegistrationDialog(StatesGroup):
+    offer_message = State()
+    info_message = State()
+    name = State()
+    phone = State()
+    email = State()
+    sex = State()
+    specialty = State()
+    about = State()
+    photo = State()
+    confirm = State()
+    answer = State()

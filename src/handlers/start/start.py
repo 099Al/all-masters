@@ -10,6 +10,7 @@ from aiogram_dialog.widgets.text import Format, Const, List
 
 import logging
 
+from src.handlers.registration.registarateion_state import RegistrationDialog
 from src.handlers.start.start_state import StartDialog
 
 logger = logging.getLogger(__name__)
@@ -24,11 +25,12 @@ async def start_menu(message: Message, dialog_manager: DialogManager):
         #await message.answer("Добро пожаловать в каталог мастеров!")
         await dialog_manager.start(StartDialog.start, mode=StartMode.RESET_STACK)
     except Exception as e:
-        logging.error(f"Error in start: {datetime.now().replace(microsecond=0)}. {e}")
+        logging.error(f"Error in start: {datetime.now().replace(microsecond=0)}. bot_id: {message.bot.id}. {e}")
 
 
 async def master_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    pass
+    await dialog_manager.start(RegistrationDialog.offer_message)
+
 
 async def search_master(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     pass
