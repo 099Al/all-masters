@@ -22,6 +22,8 @@ async def start():
 
     add_routers(dp)
 
+
+
     setup_dialogs(dp)
 
     await dp.start_polling(bot, skip_updates=True)
