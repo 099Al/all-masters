@@ -6,5 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "aiogram>=3.21.0",
     "aiogram-dialog>=2.4.0",
+    "pydantic-settings>=2.10.1",
+    "pydentic>=0.0.1.dev3",
     "sqlalchemy>=2.0.41",
 ]
