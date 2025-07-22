@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 from aiogram_dialog import setup_dialogs
 from aiogram import Dispatcher, Bot, F
@@ -7,18 +8,24 @@ from aiogram.enums.parse_mode import ParseMode
 
 from config import settings
 
-import logging
 
+from src.database.connect import DataBase
 from src.handlers.routers import add_routers
 
+import logging
 logger = logging.getLogger(__name__)
 
 
 
 async def start():
+    logger.error(f"Bot start: ")
 
     bot = Bot(token=settings.TOKEN_ID, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
+
+    db = DataBase()
+    await db.create_db()
+
 
     add_routers(dp)
 
@@ -32,7 +39,10 @@ async def start():
 
 
 if __name__ == '__main__':
+    #logging.basicConfig(filename='logs/shop.log', level=logging.INFO)
+
     db = settings.DB
 
-    logging.basicConfig(filename='logs/shop.log', level=logging.ERROR)
+
+
     asyncio.run(start())
