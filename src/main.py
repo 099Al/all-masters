@@ -12,13 +12,13 @@ from config import settings
 from src.database.connect import DataBase
 from src.handlers.routers import add_routers
 
-import logging
+from src.log_config import *
 logger = logging.getLogger(__name__)
 
 
 
+
 async def start():
-    logger.error(f"Bot start: ")
 
     bot = Bot(token=settings.TOKEN_ID, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
