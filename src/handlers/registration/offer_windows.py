@@ -1,3 +1,4 @@
+from datetime import datetime
 from urllib import request
 
 from aiogram.fsm.context import FSMContext
@@ -10,8 +11,13 @@ from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
 from src.config import settings
+from src.database.connect import DataBase
+from src.database.models import Specialist
 from src.handlers.registration.registarateion_state import RegistrationDialog
 from aiogram.types import CallbackQuery
+
+from src.log_config import *
+logger = logging.getLogger(__name__)
 
 IMAGES = 'src/images'
 
@@ -143,11 +149,35 @@ window_confirm = Window(
 
 
 async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user: User, **kwargs):
-    img_telegram_id = dialog_manager.dialog_data['photo']
-    user_id = event_from_user.id
-    await bot.download(img_telegram_id, destination=f"{settings.path_root}/{IMAGES}/{user_id}.jpg")
-    #TODO save data to db
-    #load photo and save into folder
+    try:
+        user_id = event_from_user.id
+        img_telegram_id = dialog_manager.dialog_data.get('photo')
+        local_path = f"{IMAGES}/{user_id}.jpg"
+
+        if img_telegram_id:
+            await bot.download(img_telegram_id, destination=f"{settings.path_root}/{local_path}")
+        else:
+            local_path = None
+
+        specialist = Specialist(
+            name=dialog_manager.dialog_data.get('name', 'empty'),
+            phone=dialog_manager.dialog_data.get('phone', 'empty'),
+            email=dialog_manager.dialog_data.get('email'),
+            specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
+            about=dialog_manager.dialog_data.get('about', 'empty'),
+            photo_telegram=img_telegram_id,
+            photo_local=local_path,
+            created_at=datetime.now()
+        )
+
+        db = DataBase()
+
+        async with db.get_session()() as session:
+            async with session.begin():
+                session.add(specialist)
+    except Exception as e:
+        logger.error(f"Error in getter_answer. bot_id: {event_from_user.bot.id}. {e}")
+
     return {}
 
 

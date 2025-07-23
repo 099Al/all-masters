@@ -1,6 +1,9 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 
 class Settings(BaseSettings):
@@ -15,7 +18,9 @@ class Settings(BaseSettings):
     BOT_ID: str
 
     #instead load_dotenv()
-    model_config = SettingsConfigDict(env_file="../.env", env_file_encoding="utf-8", extra="ignore")
+    path_root: str = str(Path(__file__).resolve().parent.parent)
+    path_env: str = str(Path(__file__).resolve().parent.parent / '.env')
+    model_config = SettingsConfigDict(env_file=path_env, env_file_encoding="utf-8", extra="ignore")
 
     @property
     def connect_url(self):
