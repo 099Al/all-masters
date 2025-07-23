@@ -1,6 +1,6 @@
 from aiogram.fsm.state import StatesGroup, State
 
-class RegistrationDialog(StatesGroup):
+class CheckinDialog(StatesGroup):
     offer_message = State()
     info_message = State()
     name = State()

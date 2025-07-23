@@ -9,7 +9,7 @@ from aiogram_dialog.widgets.kbd import Button, SwitchTo
 from aiogram_dialog.widgets.text import Format, Const, List
 
 
-from src.handlers.registration.registarateion_state import RegistrationDialog
+from src.handlers.checkin.checkin_state import CheckinDialog
 from src.handlers.start.start_state import StartDialog
 
 #from src.log_config import *
@@ -31,7 +31,7 @@ async def start_menu(message: Message, dialog_manager: DialogManager):
 
 
 async def master_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.start(RegistrationDialog.offer_message)
+    await dialog_manager.start(CheckinDialog.offer_message)
 
 
 async def search_master(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
