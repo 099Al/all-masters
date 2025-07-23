@@ -6,7 +6,16 @@ class CheckinDialog(StatesGroup):
     name = State()
     phone = State()
     email = State()
-    sex = State()
+    specialty = State()
+    about = State()
+    photo = State()
+    confirm = State()
+    answer = State()
+
+class UpdateDialog(StatesGroup):
+    name = State()
+    phone = State()
+    email = State()
     specialty = State()
     about = State()
     photo = State()

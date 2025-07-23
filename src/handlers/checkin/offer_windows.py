@@ -42,9 +42,7 @@ window_offer_info = Window(
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = widget.get_value()
-    print(dialog_manager)
-    #await dialog_manager.switch_to(CheckinDialog.phone)
-    await dialog_manager.switch_to(CheckinDialog.photo)
+    await dialog_manager.switch_to(CheckinDialog.phone)
 
 
 window_name = Window(
@@ -141,7 +139,7 @@ window_photo = Window(
 window_confirm = Window(
     Format("Осталось подтвердить заявку"),
     Format("Подтверждая заявку, вы даете соглашаетесь с условиями использования сервиса"),
-    #TODO Link to terms
+    #TODO Link to Site Politics
     Back(Const("🔙 Назад"), id="back_offer"),
     Next(Const("Подтвердить"), id="confirm"),
     state=CheckinDialog.confirm
@@ -160,6 +158,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             local_path = None
 
         specialist = Specialist(
+            id=user_id,
             name=dialog_manager.dialog_data.get('name', 'empty'),
             phone=dialog_manager.dialog_data.get('phone', 'empty'),
             email=dialog_manager.dialog_data.get('email'),

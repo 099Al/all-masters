@@ -7,8 +7,10 @@ from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, SwitchTo
 from aiogram_dialog.widgets.text import Format, Const, List
+from sqlalchemy.future import select
 
-
+from src.database.connect import DataBase
+from src.database.models import Specialist
 from src.handlers.checkin.checkin_state import CheckinDialog
 from src.handlers.start.start_state import StartDialog
 
@@ -31,7 +33,21 @@ async def start_menu(message: Message, dialog_manager: DialogManager):
 
 
 async def master_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.start(CheckinDialog.offer_message)
+
+    user_id = callback.from_user.id
+    session = DataBase().get_session()
+    async with session() as session:
+        result = await session.execute(
+            select(Specialist)
+            .where(Specialist.id == user_id)
+        )
+
+        res = result.scalars().first()
+
+    if res:
+        await dialog_manager.start(CheckinDialog.info_message, data={"status": res.status, "message_to_user": res.message_to_user})
+    else:
+        await dialog_manager.start(CheckinDialog.offer_message)
 
 
 async def search_master(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
