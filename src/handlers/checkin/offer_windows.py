@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInp
 from src.config import settings
 from src.database.connect import DataBase
 from src.database.models import Specialist
-from src.handlers.registration.registarateion_state import RegistrationDialog
+from src.handlers.checkin.checkin_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
 from src.log_config import *
@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 IMAGES = 'src/images'
 
 
-async def registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.switch_to(RegistrationDialog.name)
+async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(CheckinDialog.name)
 
 
 async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -33,18 +33,16 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
 
 window_offer_info = Window(
                 Format("Зарегистрируйтесь \nи клиенты смогут вас найти!"),
-                Button(Const("Зарегистрироваться"), id="registration", on_click=registration),
+                Button(Const("Зарегистрироваться"), id="checkin", on_click=checkin),
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
-                state=RegistrationDialog.offer_message,
+                state=CheckinDialog.offer_message,
 )
 
 
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = widget.get_value()
-    print(dialog_manager)
-    #await dialog_manager.switch_to(RegistrationDialog.phone)
-    await dialog_manager.switch_to(RegistrationDialog.photo)
+    await dialog_manager.switch_to(CheckinDialog.phone)
 
 
 window_name = Window(
@@ -54,13 +52,13 @@ window_name = Window(
                           on_success=save_name
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
-                state=RegistrationDialog.name
+                state=CheckinDialog.name
 )
 
 
 async def save_phone(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['phone'] = message.text
-    await dialog_manager.switch_to(RegistrationDialog.email)
+    await dialog_manager.switch_to(CheckinDialog.email)
 
 window_phone = Window(
                 Format("Введите ваш номер телефона"),
@@ -69,13 +67,13 @@ window_phone = Window(
                           on_success=save_phone
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
-                state=RegistrationDialog.phone,
+                state=CheckinDialog.phone,
 )
 
 
 async def save_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['email'] = message.text
-    await dialog_manager.switch_to(RegistrationDialog.specialty)
+    await dialog_manager.switch_to(CheckinDialog.specialty)
 
 window_email = Window(
                 Format("Введите ваш email"),
@@ -85,14 +83,14 @@ window_email = Window(
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
                 Next(Const("⏩ Пропустить"), id="skip"),
-                state=RegistrationDialog.email,
+                state=CheckinDialog.email,
 )
 
 
 
 async def save_specialty(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['specialty'] = message.text
-    await dialog_manager.switch_to(RegistrationDialog.about)
+    await dialog_manager.switch_to(CheckinDialog.about)
 
 window_specialty = Window(
                 Format("Введите вашу специальность"),
@@ -101,14 +99,14 @@ window_specialty = Window(
                           on_success=save_specialty
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
-                state=RegistrationDialog.specialty,
+                state=CheckinDialog.specialty,
 )
 
 
 
 async def save_about(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['about'] = message.text
-    await dialog_manager.switch_to(RegistrationDialog.photo)
+    await dialog_manager.switch_to(CheckinDialog.photo)
 
 window_about = Window(
                 Format("Напишите о себе"),
@@ -117,13 +115,13 @@ window_about = Window(
                           on_success=save_about
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
-                state=RegistrationDialog.about,
+                state=CheckinDialog.about,
 )
 
 
 async def save_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
-    await dialog_manager.switch_to(RegistrationDialog.confirm)
+    await dialog_manager.switch_to(CheckinDialog.confirm)
 
 
 window_photo = Window(
@@ -134,17 +132,17 @@ window_photo = Window(
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
                 Next(Const("⏩ Пропустить"), id="skip"),
-                state=RegistrationDialog.photo,
+                state=CheckinDialog.photo,
 )
 
 
 window_confirm = Window(
     Format("Осталось подтвердить заявку"),
     Format("Подтверждая заявку, вы даете соглашаетесь с условиями использования сервиса"),
-    #TODO Link to terms
+    #TODO Link to Site Politics
     Back(Const("🔙 Назад"), id="back_offer"),
     Next(Const("Подтвердить"), id="confirm"),
-    state=RegistrationDialog.confirm
+    state=CheckinDialog.confirm
 )
 
 
@@ -160,6 +158,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             local_path = None
 
         specialist = Specialist(
+            id=user_id,
             name=dialog_manager.dialog_data.get('name', 'empty'),
             phone=dialog_manager.dialog_data.get('phone', 'empty'),
             email=dialog_manager.dialog_data.get('email'),
@@ -184,6 +183,6 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
 window_answer = Window(
                 Format("Ваша заявка принята! \nПосле модерации ваша анкета станет доступной в каталоге!"),
                 Button(Const("Ok"), id="offer_ok", on_click=back_to_start),
-                state=RegistrationDialog.answer,
+                state=CheckinDialog.answer,
                 getter=getter_answer
 )
