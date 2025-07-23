@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 IMAGES = 'src/images'
 
 
-async def registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     await dialog_manager.switch_to(CheckinDialog.name)
 
 
@@ -33,7 +33,7 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
 
 window_offer_info = Window(
                 Format("Зарегистрируйтесь \nи клиенты смогут вас найти!"),
-                Button(Const("Зарегистрироваться"), id="registration", on_click=registration),
+                Button(Const("Зарегистрироваться"), id="checkin", on_click=checkin),
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
                 state=CheckinDialog.offer_message,
 )
