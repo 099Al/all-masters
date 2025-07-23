@@ -1,16 +1,19 @@
+from urllib import request
+
 from aiogram.fsm.context import FSMContext
+from aiogram import Dispatcher, Bot
 from aiogram.types import ContentType
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, User
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next
 from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
-
+from src.config import settings
 from src.handlers.registration.registarateion_state import RegistrationDialog
 from aiogram.types import CallbackQuery
 
-
+IMAGES = 'src/images'
 
 
 async def registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -33,7 +36,9 @@ window_offer_info = Window(
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = widget.get_value()
-    await dialog_manager.switch_to(RegistrationDialog.phone)
+    print(dialog_manager)
+    #await dialog_manager.switch_to(RegistrationDialog.phone)
+    await dialog_manager.switch_to(RegistrationDialog.photo)
 
 
 window_name = Window(
@@ -111,7 +116,7 @@ window_about = Window(
 
 
 async def save_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
-    dialog_manager.dialog_data['photo'] = message.photo[0].file_id
+    dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
     await dialog_manager.switch_to(RegistrationDialog.confirm)
 
 
@@ -137,8 +142,10 @@ window_confirm = Window(
 )
 
 
-async def getter_answer(dialog_manager: DialogManager, **kwargs):
-    print(dialog_manager)
+async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user: User, **kwargs):
+    img_telegram_id = dialog_manager.dialog_data['photo']
+    user_id = event_from_user.id
+    await bot.download(img_telegram_id, destination=f"{settings.path_root}/{IMAGES}/{user_id}.jpg")
     #TODO save data to db
     #load photo and save into folder
     return {}
