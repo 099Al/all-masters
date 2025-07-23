@@ -15,6 +15,7 @@ from src.handlers.start.start_state import StartDialog
 #from src.log_config import *
 
 from src.log_settings import *
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -25,11 +26,8 @@ async def start_menu(message: Message, dialog_manager: DialogManager):
     try:
         #await message.answer("Добро пожаловать в каталог мастеров!")
         await dialog_manager.start(StartDialog.start, mode=StartMode.RESET_STACK)
-        logger.error(f"====Start: {datetime.now().replace(microsecond=0)}. message ==== ")
-        logger.debug(f"====: {datetime.now().replace(microsecond=0)}. message for check==== ")
-
     except Exception as e:
-        logger.error(f"Error in start: {datetime.now().replace(microsecond=0)}. bot_id: {message.bot.id}. {e}")
+        logger.error(f"Error in start. bot_id: {message.bot.id}. {e}")
 
 
 async def master_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
