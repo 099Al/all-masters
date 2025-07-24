@@ -12,7 +12,7 @@ class CheckinDialog(StatesGroup):
     confirm = State()
     answer = State()
 
-class UpdateDialog(StatesGroup):
+class EditDialog(StatesGroup):
     name = State()
     phone = State()
     email = State()

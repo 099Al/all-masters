@@ -10,6 +10,7 @@ from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next
 from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
+from src import config
 from src.config import settings
 from src.database.connect import DataBase
 from src.database.models import Specialist
@@ -18,8 +19,6 @@ from aiogram.types import CallbackQuery
 
 from src.log_config import *
 logger = logging.getLogger(__name__)
-
-IMAGES = 'src/images'
 
 
 async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -150,7 +149,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
     try:
         user_id = event_from_user.id
         img_telegram_id = dialog_manager.dialog_data.get('photo')
-        local_path = f"{IMAGES}/{user_id}.jpg"
+        local_path = f"{settings.IMAGES}/{user_id}.jpg"
 
         if img_telegram_id:
             await bot.download(img_telegram_id, destination=f"{settings.path_root}/{local_path}")

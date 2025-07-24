@@ -45,7 +45,7 @@ async def master_registration(callback: CallbackQuery, button: Button, dialog_ma
         res = result.scalars().first()
 
     if res:
-        await dialog_manager.start(CheckinDialog.info_message, data={"status": res.status, "message_to_user": res.message_to_user})
+        await dialog_manager.start(CheckinDialog.info_message, data={"user_id": user_id, "status": res.status, "message_to_user": res.message_to_user})
     else:
         await dialog_manager.start(CheckinDialog.offer_message)
 

@@ -1,20 +1,14 @@
-from datetime import datetime
-from urllib import request
+from aiogram import F
 
-from aiogram.fsm.context import FSMContext
-from aiogram import Dispatcher, Bot, F
-from aiogram.types import ContentType
-from aiogram.types import CallbackQuery, Message, User
-from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next
-from aiogram_dialog.widgets.text import Format, Const, List
-from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
+from aiogram_dialog import DialogManager, Window
+from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.text import Format, Const
 
-from src.config import settings
 from src.database.connect import DataBase
-from src.database.models import Specialist, UserStatus
-from src.handlers.checkin.checkin_state import CheckinDialog, UpdateDialog
+from src.database.models import UserStatus, Specialist
+from src.handlers.checkin.checkin_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
+from sqlalchemy.future import select
 
 from src.log_config import *
 logger = logging.getLogger(__name__)
@@ -54,7 +48,25 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
 
 
 async def update_info(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs):
-    await dialog_manager.switch_to(UpdateDialog.name)
+    user_id = dialog_manager.start_data["user_id"]
+    session = DataBase().get_session()
+    async with session() as session:
+        result = await session.execute(
+            select(Specialist)
+            .where(Specialist.id == user_id)
+        )
+    res = result.scalars().first()
+
+    user_data = {"user_id": user_id,
+                 "name": res.name,
+                 "phone": res.phone,
+                 "email": res.email,
+                 "specialty": res.specialty,
+                 "about": res.about
+                 }
+    await dialog_manager.start(EditDialog.name, data=user_data)
+
+
 
 window_info = Window(
         Format("{info}"),
