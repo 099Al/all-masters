@@ -11,6 +11,7 @@ from sqlalchemy.future import select
 
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, UserStatus
+from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog
 from src.handlers.start.start_state import StartDialog
 
@@ -46,14 +47,9 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
     т.к. на основании него были отправлены данные в ModerateData (пользователь сейчас активный)
     """
     user_id = callback.from_user.id
-    session = DataBase().get_session()
 
-    async with session() as session:
-        result = await session.execute(
-            select(Specialist)
-            .where(Specialist.id == user_id)
-        )
-        res = result.scalars().first()
+    req = ReqData()
+    res = await req.get_specialist_date(user_id)
 
     if res:
         user_data = {"user_id": user_id,

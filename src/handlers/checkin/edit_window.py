@@ -13,6 +13,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInp
 from src.config import settings
 from src.database.connect import DataBase
 from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus
+from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
 
@@ -196,13 +197,10 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         updated_at=datetime.now()
     )
 
-    db = DataBase()
+    req = ReqData()
+    await req.merge_profile_data(specialist_moderate)
 
-    async with db.get_session()() as session:
-        async with session.begin():
-            await session.merge(specialist_moderate)
     await dialog_manager.done()
-
 
 
 window_edit_confirm = Window(
