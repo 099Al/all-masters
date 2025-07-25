@@ -6,16 +6,18 @@ class CheckinDialog(StatesGroup):
     name = State()
     phone = State()
     email = State()
+    telegram = State()
     specialty = State()
     about = State()
     photo = State()
     confirm = State()
     answer = State()
 
-class UpdateDialog(StatesGroup):
+class EditDialog(StatesGroup):
     name = State()
     phone = State()
     email = State()
+    telegram = State()
     specialty = State()
     about = State()
     photo = State()
