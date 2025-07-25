@@ -14,6 +14,7 @@ from src import config
 from src.config import settings
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus
+from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
@@ -201,12 +202,11 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             created_at=datetime.now()
         )
 
-        db = DataBase()
+        req = ReqData()
 
-        async with db.get_session()() as session:
-            async with session.begin():
-                session.add(specialist)
-                session.add(specialist_moderate)
+        await req.save_profile_data(specialist)
+        await req.save_profile_data(specialist_moderate)
+
     except Exception as e:
         logger.error(f"Error in getter_answer. bot_id: {event_from_user.bot.id}. {e}")
 
