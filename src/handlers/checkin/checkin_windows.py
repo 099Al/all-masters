@@ -14,7 +14,7 @@ from src import config
 from src.config import settings
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus
-from src.handlers.checkin.checkin_state import CheckinDialog
+from src.handlers.checkin.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
 from src.log_config import *
@@ -34,7 +34,7 @@ window_offer_info = Window(
                 Format("Зарегистрируйтесь \nи клиенты смогут вас найти!"),
                 Button(Const("Зарегистрироваться"), id="checkin", on_click=checkin),
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
-                state=CheckinDialog.offer_message,
+                state=CheckinDialog.checkin_message,
 )
 
 

@@ -5,7 +5,7 @@ from src.handlers.checkin.edit_window import (window_edit_name, window_edit_phon
     window_edit_photo, window_edit_confirm, window_edit_telegram
                                               )
 from src.handlers.checkin.info_window import window_info
-from src.handlers.checkin.offer_windows import (
+from src.handlers.checkin.checkin_windows import (
     window_offer_info, window_name, window_phone, window_email,
     window_specialty, window_about, window_photo, window_confirm, window_answer, window_telegram
 )

@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 
-from src.handlers.checkin.checkin import dialog_offer, dialog_edit
+from src.handlers.checkin.profile import dialog_offer, dialog_edit
 from src.handlers.start.start import start_router, dialog_start
 
 

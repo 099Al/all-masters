@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInp
 from src.config import settings
 from src.database.connect import DataBase
 from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus
-from src.handlers.checkin.checkin_state import CheckinDialog, EditDialog
+from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
 
 from src.log_config import *
