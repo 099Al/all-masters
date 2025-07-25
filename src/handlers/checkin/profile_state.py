@@ -1,7 +1,7 @@
 from aiogram.fsm.state import StatesGroup, State
 
 class CheckinDialog(StatesGroup):
-    offer_message = State()
+    checkin_message = State()
     info_message = State()
     name = State()
     phone = State()

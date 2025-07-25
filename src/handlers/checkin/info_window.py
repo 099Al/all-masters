@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.text import Format, Const
 
 from src.database.connect import DataBase
 from src.database.models import UserStatus, Specialist, ModerateStatus
-from src.handlers.checkin.checkin_state import CheckinDialog, EditDialog
+from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
 from sqlalchemy.future import select
 

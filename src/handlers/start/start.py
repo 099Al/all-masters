@@ -11,7 +11,7 @@ from sqlalchemy.future import select
 
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, UserStatus
-from src.handlers.checkin.checkin_state import CheckinDialog
+from src.handlers.checkin.profile_state import CheckinDialog
 from src.handlers.start.start_state import StartDialog
 
 #from src.log_config import *
@@ -69,7 +69,7 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
                  }
         await dialog_manager.start(CheckinDialog.info_message, data=user_data)
     else:
-        await dialog_manager.start(CheckinDialog.offer_message)
+        await dialog_manager.start(CheckinDialog.checkin_message)
 
 
 async def search_user(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
