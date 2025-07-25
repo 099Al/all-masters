@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInp
 from src import config
 from src.config import settings
 from src.database.connect import DataBase
-from src.database.models import Specialist
+from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus
 from src.handlers.checkin.checkin_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
@@ -70,9 +70,26 @@ window_phone = Window(
 )
 
 
+async def save_telegram(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    dialog_manager.dialog_data['telegram'] = message.text
+    await dialog_manager.switch_to(CheckinDialog.email)
+
+window_telegram = Window(
+                Format("Введите ваш Telegram"),
+                TextInput(id="input_telegram",
+                          type_factory=str,
+                          on_success=save_telegram
+                          ),
+                Back(Const("🔙 Назад"), id="back_offer"),
+                Next(Const("⏩ Пропустить"), id="skip"),
+                state=CheckinDialog.telegram,
+)
+
+
 async def save_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['email'] = message.text
     await dialog_manager.switch_to(CheckinDialog.specialty)
+
 
 window_email = Window(
                 Format("Введите ваш email"),
@@ -156,11 +173,27 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
         else:
             local_path = None
 
-        specialist = Specialist(
+        specialist_moderate = ModerateData(
             id=user_id,
+            status=ModerateStatus.NEW,
             name=dialog_manager.dialog_data.get('name', 'empty'),
             phone=dialog_manager.dialog_data.get('phone', 'empty'),
             email=dialog_manager.dialog_data.get('email'),
+            telegram=dialog_manager.dialog_data.get('telegram', 'empty'),
+            specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
+            about=dialog_manager.dialog_data.get('about', 'empty'),
+            photo_telegram=img_telegram_id,
+            photo_local=local_path,
+            updated_at=datetime.now()
+        )
+
+        specialist = Specialist(
+            id=user_id,
+            status=UserStatus.NEW,
+            name=dialog_manager.dialog_data.get('name', 'empty'),
+            phone=dialog_manager.dialog_data.get('phone', 'empty'),
+            email=dialog_manager.dialog_data.get('email'),
+            telegram=dialog_manager.dialog_data.get('telegram', 'empty'),
             specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
             about=dialog_manager.dialog_data.get('about', 'empty'),
             photo_telegram=img_telegram_id,
@@ -173,6 +206,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
         async with db.get_session()() as session:
             async with session.begin():
                 session.add(specialist)
+                session.add(specialist_moderate)
     except Exception as e:
         logger.error(f"Error in getter_answer. bot_id: {event_from_user.bot.id}. {e}")
 

@@ -12,7 +12,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInp
 
 from src.config import settings
 from src.database.connect import DataBase
-from src.database.models import Specialist, UserStatus
+from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus
 from src.handlers.checkin.checkin_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
 
@@ -59,6 +59,26 @@ window_edit_phone = Window(
     Next(Const("⏩ Пропустить"), id="skip"),
     state=EditDialog.phone,
     getter=getter_edit_phone
+)
+
+async def getter_edit_telegram(dialog_manager: DialogManager, **kwargs):
+    user_data = dialog_manager.start_data
+    return {"telegram": user_data['telegram']}
+
+async def edit_telegram(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    dialog_manager.dialog_data['telegram'] = message.text
+    await dialog_manager.switch_to(EditDialog.email)
+
+window_edit_telegram = Window(
+    Format("Ваш telegram: {telegram}\nДля изменения введите новое значение"),
+    TextInput(id="edit_telegram",
+              type_factory=str,
+              on_success=edit_telegram,
+              ),
+    Back(Const("🔙 Назад"), id="back_edit_telegram"),
+    Next(Const("⏩ Пропустить"), id="skip"),
+    state=EditDialog.telegram,
+    getter=getter_edit_telegram
 )
 
 
@@ -113,7 +133,7 @@ async def edit_about(message: Message, widget: ManagedTextInput, dialog_manager:
     await dialog_manager.switch_to(EditDialog.photo)
 
 window_edit_about = Window(
-    Format("Описание: {about}\nДля изменения введите новое значение"),
+    Format("О себе: {about}\nДля изменения введите новое значение"),
     TextInput(id="edit_about",
               type_factory=str,
               on_success=edit_about,
@@ -158,36 +178,35 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
     else:
         local_path = None
 
+    specialist_status = dialog_manager.start_data['status']
 
 
-    specialist = Specialist(
+
+    specialist_moderate = ModerateData(
         id=user_id,
+        status=ModerateStatus.NEW_CHANGES if specialist_status == UserStatus.APPROVED else ModerateStatus.NEW,
         name=dialog_manager.dialog_data.get('name', 'empty'),
         phone=dialog_manager.dialog_data.get('phone', 'empty'),
+        telegram=dialog_manager.dialog_data.get('telegram', 'empty'),
         email=dialog_manager.dialog_data.get('email'),
         specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
         about=dialog_manager.dialog_data.get('about', 'empty'),
         photo_telegram=img_telegram_id,
         photo_local=local_path,
-        created_at=datetime.now()
+        updated_at=datetime.now()
     )
 
     db = DataBase()
 
     async with db.get_session()() as session:
         async with session.begin():
-            session.add(specialist)
-
+            await session.merge(specialist_moderate)
     await dialog_manager.done()
 
 
 
 window_edit_confirm = Window(
     Format("Завершение изменений"),
-    TextInput(id="edit_confirm",
-              type_factory=str,
-              on_success=edit_confirm,
-              ),
     Back(Const("🔙 Назад"), id="back_edit"),
     Button(Const("Подтвердить"), id="edit_confirm", on_click=edit_confirm),
     state=EditDialog.confirm

@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Format, Const
 
 from src.database.connect import DataBase
-from src.database.models import UserStatus, Specialist
+from src.database.models import UserStatus, Specialist, ModerateStatus
 from src.handlers.checkin.checkin_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
 from sqlalchemy.future import select
@@ -23,54 +23,40 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
     data = dialog_manager.start_data
 
     status = data.get("status")
+    moderate_result = data.get("moderate_result")
     message_to_user = data.get("message_to_user")
 
     data_info = {}
     if status == UserStatus.NEW:
         data_info["info"] = "Ваша заявка ждет модерации."
-    elif status == UserStatus.APPROVED:
+    elif status == UserStatus.APPROVED and (moderate_result == ModerateStatus.APPROVED or moderate_result is None):
         data_info["info"] = "Ваша анкета открыта."
-    elif status == UserStatus.NEW_CHANGES:
+    elif status == UserStatus.APPROVED and moderate_result in [ModerateStatus.NEW_CHANGES, ModerateStatus.NEW]:
         data_info["info"] = "Внесенные данные ждут модерации."
-    elif status == UserStatus.REJECTED:
+    elif status == UserStatus.NEW and moderate_result == ModerateStatus.REJECTED:
         reason = f"\nПричина: {message_to_user}" if message_to_user else ''
         data_info["info"] = f"Ваша анкета отклонена. {reason}"
+    elif status == UserStatus.APPROVED and moderate_result == ModerateStatus.REJECTED:
+        reason = f"\nПричина: {message_to_user}" if message_to_user else ''
+        data_info["info"] = f"новые данные отклонены. {reason}"
     elif status == UserStatus.BANNED:
         data_info["info"] = f"Ваша анкета заблокирована."
-    elif status == UserStatus.DELETED:
-        data_info["info"] = f"Ваша анкета удалена."
 
-    button_change = status not in [UserStatus.BANNED]
+    available_change = status not in [UserStatus.BANNED]
 
-    data_info["button_change"] = button_change
+    data_info["available_change"] = available_change
 
     return data_info
 
 
 async def update_info(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs):
-    user_id = dialog_manager.start_data["user_id"]
-    session = DataBase().get_session()
-    async with session() as session:
-        result = await session.execute(
-            select(Specialist)
-            .where(Specialist.id == user_id)
-        )
-    res = result.scalars().first()
-
-    user_data = {"user_id": user_id,
-                 "name": res.name,
-                 "phone": res.phone,
-                 "email": res.email,
-                 "specialty": res.specialty,
-                 "about": res.about
-                 }
+    user_data = dialog_manager.start_data
     await dialog_manager.start(EditDialog.name, data=user_data)
-
 
 
 window_info = Window(
         Format("{info}"),
-                Button(Const("Внести изменения"), id="update_info", on_click=update_info, when=F["button_change"]),
+                Button(Const("Внести изменения"), id="update_info", on_click=update_info, when=F["available_change"]),
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
                 getter=getter_info,
                 state=CheckinDialog.info_message,
