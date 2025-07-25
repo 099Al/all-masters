@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from urllib import request
 
 from aiogram.fsm.context import FSMContext
@@ -91,12 +92,22 @@ async def save_email(message: Message, widget: ManagedTextInput, dialog_manager:
     dialog_manager.dialog_data['email'] = message.text
     await dialog_manager.switch_to(CheckinDialog.specialty)
 
+def validate_email(email: str) -> str:
+    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    if re.match(email_regex, email):
+        return email
+    else:
+        raise ValueError("Invalid email address")
+
+async def error_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer("Некорректный email")
 
 window_email = Window(
                 Format("Введите ваш email"),
                 TextInput(id="input_email",
-                          type_factory=str,
-                          on_success=save_email
+                          type_factory=validate_email,
+                          on_success=save_email,
+                          on_error=error_email
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
                 Next(Const("⏩ Пропустить"), id="skip"),

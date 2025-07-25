@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from urllib import request
 
 from aiogram.fsm.context import FSMContext
@@ -11,7 +12,6 @@ from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
 from src.config import settings
-from src.database.connect import DataBase
 from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
@@ -91,11 +91,24 @@ async def edit_email(message: Message, widget: ManagedTextInput, dialog_manager:
     dialog_manager.dialog_data['email'] = message.text
     await dialog_manager.switch_to(EditDialog.specialty)
 
+
+def validate_email(email: str) -> str:
+    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    if re.match(email_regex, email):
+        return email
+    else:
+        raise ValueError("Invalid email address")
+
+async def error_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer("Некорректный email")
+
+
 window_edit_email = Window(
     Format("Ваш email: {email}\nДля изменения введите новое значение"),
     TextInput(id="edit_email",
-              type_factory=str,
+              type_factory=validate_email,
               on_success=edit_email,
+              on_error=error_email
               ),
     Back(Const("🔙 Назад"), id="back_edit_email"),
     Next(Const("⏩ Пропустить"), id="skip"),
