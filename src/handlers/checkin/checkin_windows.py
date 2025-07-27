@@ -142,7 +142,7 @@ window_specialty = Window(
                           on_success=save_specialty,
                           on_error=error_specialty
                           ),
-                Back(Const("🔙 Назад"), id="back_offer"),
+                Back(Const("🔙 Назад"), id="back_specialty"),
                 state=CheckinDialog.specialty,
 )
 
@@ -229,12 +229,12 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
         specialist_moderate = ModerateData(
             id=user_id,
             status=ModerateStatus.NEW,
-            name=dialog_manager.dialog_data.get('name', 'empty'),
-            phone=dialog_manager.dialog_data.get('phone', 'empty'),
+            name=dialog_manager.dialog_data.get('name'),
+            phone=dialog_manager.dialog_data.get('phone'),
             email=dialog_manager.dialog_data.get('email'),
-            telegram=dialog_manager.dialog_data.get('telegram', 'empty'),
-            specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
-            about=dialog_manager.dialog_data.get('about', 'empty'),
+            telegram=dialog_manager.dialog_data.get('telegram'),
+            specialty=dialog_manager.dialog_data.get('specialty'),
+            about=dialog_manager.dialog_data.get('about'),
             photo_telegram=img_telegram_id,
             photo_local=local_path,
             updated_at=datetime.now()
