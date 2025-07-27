@@ -10,6 +10,8 @@ from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next
 from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
+from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
+from aiogram.types import KeyboardButton
 
 from src import config
 from src.config import settings
@@ -20,11 +22,13 @@ from src.handlers.checkin.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
 from src.log_config import *
+from aiogram_dialog.widgets.kbd import RequestContact
+
 logger = logging.getLogger(__name__)
 
 
 async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.switch_to(CheckinDialog.name)
+    await dialog_manager.switch_to(CheckinDialog.request_phone)
 
 
 async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -32,7 +36,7 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
 
 
 
-window_offer_info = Window(
+window_checkin_start = Window(
                 Format("Зарегистрируйтесь \nи клиенты смогут вас найти!"),
                 Button(Const("Зарегистрироваться"), id="checkin", on_click=checkin),
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
@@ -40,10 +44,28 @@ window_offer_info = Window(
 )
 
 
+async def contact_message(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    dialog_manager.dialog_data['phone'] = message.contact.phone_number
+    await dialog_manager.switch_to(CheckinDialog.name)
+
+
+window_phone = Window(
+                Format("Для регистрации нужен ваш телефон"),
+                RequestContact(Const("Отправить контакт")),
+                Back(Const("Назад"), id="back"),
+                MessageInput(contact_message, ContentType.CONTACT),
+                markup_factory=ReplyKeyboardFactory(
+                            input_field_placeholder=Format("{event.from_user.username}"),
+                            resize_keyboard=True,
+                            one_time_keyboard=True
+                            ),
+                state=CheckinDialog.request_phone,
+)
+
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = widget.get_value()
-    await dialog_manager.switch_to(CheckinDialog.phone)
+    await dialog_manager.switch_to(CheckinDialog.telegram)
 
 
 window_name = Window(
@@ -54,37 +76,6 @@ window_name = Window(
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
                 state=CheckinDialog.name
-)
-
-
-async def save_phone(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['phone'] = message.text
-    await dialog_manager.switch_to(CheckinDialog.email)
-
-window_phone = Window(
-                Format("Введите ваш номер телефона"),
-                TextInput(id="input_phone",
-                          type_factory=str,
-                          on_success=save_phone
-                          ),
-                Back(Const("🔙 Назад"), id="back_offer"),
-                state=CheckinDialog.phone,
-)
-
-
-async def save_telegram(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['telegram'] = message.text
-    await dialog_manager.switch_to(CheckinDialog.email)
-
-window_telegram = Window(
-                Format("Введите ваш Telegram"),
-                TextInput(id="input_telegram",
-                          type_factory=str,
-                          on_success=save_telegram
-                          ),
-                Back(Const("🔙 Назад"), id="back_offer"),
-                Next(Const("⏩ Пропустить"), id="skip"),
-                state=CheckinDialog.telegram,
 )
 
 
