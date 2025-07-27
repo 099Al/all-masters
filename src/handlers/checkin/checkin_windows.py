@@ -46,7 +46,8 @@ window_checkin_start = Window(
 
 async def contact_message(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['phone'] = message.contact.phone_number
-    await dialog_manager.switch_to(CheckinDialog.name)
+    dialog_manager.dialog_data['telegram'] = message.from_user.username
+    await dialog_manager.switch_to(CheckinDialog.email)
 
 
 window_phone = Window(
@@ -61,6 +62,33 @@ window_phone = Window(
                             ),
                 state=CheckinDialog.request_phone,
 )
+
+async def save_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    dialog_manager.dialog_data['email'] = message.text
+    await dialog_manager.switch_to(CheckinDialog.name)
+
+def validate_email(email: str) -> str:
+    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    if re.match(email_regex, email):
+        return email
+    else:
+        raise ValueError("Invalid email address")
+
+async def error_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer("Некорректный email")
+
+window_email = Window(
+                Format("Введите ваш email"),
+                TextInput(id="input_email",
+                          type_factory=validate_email,
+                          on_success=save_email,
+                          on_error=error_email
+                          ),
+                Back(Const("🔙 Назад"), id="back_email"),
+                Next(Const("⏩ Пропустить"), id="skip"),
+                state=CheckinDialog.email,
+)
+
 
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
@@ -91,43 +119,26 @@ window_name = Window(
 )
 
 
-async def save_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['email'] = message.text
-    await dialog_manager.switch_to(CheckinDialog.specialty)
-
-def validate_email(email: str) -> str:
-    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-    if re.match(email_regex, email):
-        return email
-    else:
-        raise ValueError("Invalid email address")
-
-async def error_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
-    await message.answer("Некорректный email")
-
-window_email = Window(
-                Format("Введите ваш email"),
-                TextInput(id="input_email",
-                          type_factory=validate_email,
-                          on_success=save_email,
-                          on_error=error_email
-                          ),
-                Back(Const("🔙 Назад"), id="back_offer"),
-                Next(Const("⏩ Пропустить"), id="skip"),
-                state=CheckinDialog.email,
-)
-
-
 
 async def save_specialty(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['specialty'] = message.text
     await dialog_manager.switch_to(CheckinDialog.about)
 
+async def error_specialty(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer(error.args[0])
+
+def validate_specialty(specialty: str) -> str:
+    if len(specialty) > 100:
+        raise ValueError("Слишком много символов")
+    else:
+        return specialty
+
 window_specialty = Window(
-                Format("Введите вашу специальность"),
+                Format("Введите ваши специальности\n(через запятую или точку,\nне более 3х)"),
                 TextInput(id="input_specialty",
-                          type_factory=str,
-                          on_success=save_specialty
+                          type_factory=validate_specialty,
+                          on_success=save_specialty,
+                          on_error=error_specialty
                           ),
                 Back(Const("🔙 Назад"), id="back_offer"),
                 state=CheckinDialog.specialty,
@@ -139,15 +150,26 @@ async def save_about(message: Message, widget: ManagedTextInput, dialog_manager:
     dialog_manager.dialog_data['about'] = message.text
     await dialog_manager.switch_to(CheckinDialog.photo)
 
+async def error_about(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer(error.args[0])
+
+def validate_about(about: str) -> str:
+    if len(about) > 500:
+        raise ValueError("Слишком много символов.\n не больше 500")
+    else:
+        return about
+
 window_about = Window(
-                Format("Напишите о себе"),
+                Format("Напишите о себе.\nМожете указать стоимость работ, адрес\nи другую информацию"),
                 TextInput(id="input_about",
-                          type_factory=str,
-                          on_success=save_about
+                          type_factory=validate_about,
+                          on_success=save_about,
+                          on_error=error_about
                           ),
-                Back(Const("🔙 Назад"), id="back_offer"),
+                Back(Const("🔙 Назад"), id="back_specialty"),
                 state=CheckinDialog.about,
 )
+
 
 
 async def save_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
@@ -167,13 +189,27 @@ window_photo = Window(
 )
 
 
+async def getter_confirm(dialog_manager: DialogManager, **kwargs):
+    #dialog_manager.dialog_data['telegram'] = kwargs['event_from_user'].username
+    user_data = dialog_manager.dialog_data
+    return {
+        "name": user_data.get('name', '-')
+        , "phone": user_data['phone']
+        , "telegram": '@' + kwargs['event_from_user'].username
+        , "email": user_data.get('email', '-')
+        , "specialty": user_data.get('specialty', '-')
+        , "about": user_data.get('about', '-')
+    }
+
 window_confirm = Window(
     Format("Осталось подтвердить заявку"),
     Format("Подтверждая заявку, вы даете соглашаетесь с условиями использования сервиса"),
     #TODO Link to Site Politics
-    Back(Const("🔙 Назад"), id="back_offer"),
+    Format("<b>Ваши данные:</b>\n<b>Имя:</b> {name}\n<b>Телефон:</b> {phone}\n<b>Telegram:</b> {telegram}\n<b>Email:</b> {email}\n<b>Специальность:</b> {specialty}\n<b>О себе:</b> {about}"),
+    Back(Const("🔙 Назад"), id="back_confirm"),
     Next(Const("Подтвердить"), id="confirm"),
-    state=CheckinDialog.confirm
+    state=CheckinDialog.confirm,
+    getter=getter_confirm
 )
 
 
@@ -228,8 +264,8 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
 
 
 window_answer = Window(
-                Format("Ваша заявка принята! \nПосле модерации ваша анкета станет доступной в каталоге!"),
-                Button(Const("Ok"), id="offer_ok", on_click=back_to_start),
+                Format("Ваша заявка принята! \nПосле модерации ваша анкета станет доступной пользователям!"),
+                Button(Const("Ok"), id="profile_ok", on_click=back_to_start),
                 state=CheckinDialog.answer,
                 getter=getter_answer
 )
