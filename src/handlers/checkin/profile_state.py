@@ -4,9 +4,8 @@ class CheckinDialog(StatesGroup):
     checkin_message = State()
     info_message = State()
     request_phone = State()
-    name = State()
     email = State()
-    telegram = State()
+    name = State()
     specialty = State()
     about = State()
     photo = State()
@@ -15,9 +14,8 @@ class CheckinDialog(StatesGroup):
 
 class EditDialog(StatesGroup):
     request_phone = State()
-    name = State()
     email = State()
-    telegram = State()
+    name = State()
     specialty = State()
     about = State()
     photo = State()
