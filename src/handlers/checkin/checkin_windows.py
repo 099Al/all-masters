@@ -69,10 +69,12 @@ async def save_email(message: Message, widget: ManagedTextInput, dialog_manager:
 
 def validate_email(email: str) -> str:
     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-    if re.match(email_regex, email):
-        return email
-    else:
+    if len(email) > 50:
+        raise ValueError("Слишком длинный email")
+    elif not re.match(email_regex, email):
         raise ValueError("Invalid email address")
+    else:
+        return email
 
 async def error_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
     await message.answer("Некорректный email")
