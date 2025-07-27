@@ -65,16 +65,28 @@ window_phone = Window(
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = widget.get_value()
-    await dialog_manager.switch_to(CheckinDialog.telegram)
+    await dialog_manager.switch_to(CheckinDialog.specialty)
 
+def validate_name(name: str) -> str:
+    invalid_char_pattern = r'[0-9!@#$%^&*_+=\[\]{};:"\\|,.<>\/?]'
+    if re.search(invalid_char_pattern, name):
+        raise ValueError("Имя содержит недопустимые символы")
+    elif len(name) > 30:
+        raise ValueError("Слишком длинное имя")
+    else:
+        return name
+
+async def error_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer(error.args[0])
 
 window_name = Window(
                 Format("Введите ваше имя"),
                 TextInput(id="input_name",
-                          type_factory=str,
-                          on_success=save_name
+                          type_factory=validate_name,
+                          on_success=save_name,
+                          on_error=error_name
                           ),
-                Back(Const("🔙 Назад"), id="back_offer"),
+                Back(Const("🔙 Назад"), id="back_name"),
                 state=CheckinDialog.name
 )
 
