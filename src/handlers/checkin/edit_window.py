@@ -7,12 +7,12 @@ from aiogram import Dispatcher, Bot, F
 from aiogram.types import ContentType
 from aiogram.types import CallbackQuery, Message, User
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next, Cancel
+from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next, Cancel, RequestContact
 from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
 from src.config import settings
-from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus
+from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, UserModerateResult
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
@@ -21,13 +21,16 @@ from src.log_config import *
 logger = logging.getLogger(__name__)
 
 
+
+
+
 async def getter_edit_name(dialog_manager: DialogManager, **kwargs):
     user_data = dialog_manager.start_data
     return {"name": user_data['name']}
 
 async def edit_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = message.text
-    await dialog_manager.switch_to(EditDialog.phone)
+    await dialog_manager.switch_to(EditDialog.request_phone)
 
 window_edit_name = Window(
     Format("Ваше имя: {name}\nДля изменения введите новое значение"),
@@ -42,45 +45,8 @@ window_edit_name = Window(
 )
 
 
-async def getter_edit_phone(dialog_manager: DialogManager, **kwargs):
-    user_data = dialog_manager.start_data
-    return {"phone": user_data['phone']}
 
-async def edit_phone(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['phone'] = message.text
-    await dialog_manager.switch_to(EditDialog.email)
 
-window_edit_phone = Window(
-    Format("Ваш телефон: {phone}\nДля изменения введите новое значение"),
-    TextInput(id="edit_phone",
-              type_factory=str,
-              on_success=edit_phone,
-              ),
-    Back(Const("🔙 Назад"), id="back_edit_phone"),
-    Next(Const("⏩ Пропустить"), id="skip"),
-    state=EditDialog.phone,
-    getter=getter_edit_phone
-)
-
-async def getter_edit_telegram(dialog_manager: DialogManager, **kwargs):
-    user_data = dialog_manager.start_data
-    return {"telegram": user_data['telegram']}
-
-async def edit_telegram(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['telegram'] = message.text
-    await dialog_manager.switch_to(EditDialog.email)
-
-window_edit_telegram = Window(
-    Format("Ваш telegram: {telegram}\nДля изменения введите новое значение"),
-    TextInput(id="edit_telegram",
-              type_factory=str,
-              on_success=edit_telegram,
-              ),
-    Back(Const("🔙 Назад"), id="back_edit_telegram"),
-    Next(Const("⏩ Пропустить"), id="skip"),
-    state=EditDialog.telegram,
-    getter=getter_edit_telegram
-)
 
 
 async def getter_edit_email(dialog_manager: DialogManager, **kwargs):
@@ -194,17 +160,17 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     specialist_status = dialog_manager.start_data['status']
 
-
+    #TODO: update Specialist moderate_result to NEW_CHANGES
 
     specialist_moderate = ModerateData(
         id=user_id,
-        status=ModerateStatus.NEW_CHANGES if specialist_status == UserStatus.APPROVED else ModerateStatus.NEW,
-        name=dialog_manager.dialog_data.get('name', 'empty'),
-        phone=dialog_manager.dialog_data.get('phone', 'empty'),
-        telegram=dialog_manager.dialog_data.get('telegram', 'empty'),
-        email=dialog_manager.dialog_data.get('email'),
-        specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
-        about=dialog_manager.dialog_data.get('about', 'empty'),
+        status=ModerateStatus.NEW_CHANGES,
+        name=dialog_manager.dialog_data.get('name', dialog_manager.start_data['name']),
+        phone=dialog_manager.dialog_data.get('phone', dialog_manager.start_data['phone']),
+        telegram=dialog_manager.dialog_data.get('telegram', dialog_manager.start_data['telegram']),
+        email=dialog_manager.dialog_data.get('email', dialog_manager.start_data['email']),
+        specialty=dialog_manager.dialog_data.get('specialty', dialog_manager.start_data['specialty']),
+        about=dialog_manager.dialog_data.get('about', dialog_manager.start_data['about']),
         photo_telegram=img_telegram_id,
         photo_local=local_path,
         updated_at=datetime.now()
@@ -212,6 +178,9 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     req = ReqData()
     await req.merge_profile_data(specialist_moderate)
+
+
+    await req.update_specialist(user_id, moderate_result=UserModerateResult.NEW_CHANGES)
 
     await dialog_manager.done()
 
