@@ -52,7 +52,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
     message_to_user = data.get("message_to_user")
     photo_telegram = data.get("photo_telegram")
 
-    data_info = {}
+    data_info = {'available_change': True}
     if status == UserStatus.NEW and moderate_result is None:
         data_info["info"] = "Ваша заявка ждет модерации."
     elif status == UserStatus.NEW and moderate_result == UserModerateResult.NEW_CHANGES:
