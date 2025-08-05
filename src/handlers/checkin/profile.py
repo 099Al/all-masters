@@ -1,8 +1,9 @@
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 
-from src.handlers.checkin.edit_window import (window_edit_name, #window_edit_phone,
-    window_edit_email, window_edit_specialty, window_edit_about,
-    window_edit_photo, window_edit_confirm
+from src.handlers.checkin.edit_window import (window_edit_name,  # window_edit_phone,
+                                              window_edit_email, window_edit_specialty, window_edit_about,
+                                              window_edit_photo, window_edit_confirm, window_edit_phone,
+                                              window_message_to_admin
                                               )
 from src.handlers.checkin.info_window import window_info
 from src.handlers.checkin.checkin_windows import (
@@ -25,11 +26,12 @@ window_info,
 
 
 dialog_edit = Dialog(
-#window_edit_phone,
+window_edit_name,
+    window_edit_phone,
     window_edit_email,
-    window_edit_name,
     window_edit_specialty,
     window_edit_about,
     window_edit_photo,
+    window_message_to_admin,
     window_edit_confirm
 )

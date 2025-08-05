@@ -19,5 +19,6 @@ class EditDialog(StatesGroup):
     specialty = State()
     about = State()
     photo = State()
+    message_to_admin = State()
     confirm = State()
     answer = State()

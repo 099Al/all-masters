@@ -53,6 +53,8 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
 
     if res:
         user_data = {"user_id": user_id,
+                 "photo_telegram": res.photo_telegram,
+                 "photo_local": res.photo_local,
                  "name": res.name,
                  "phone": res.phone,
                  "email": res.email,
