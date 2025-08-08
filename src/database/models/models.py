@@ -9,16 +9,17 @@ from src.database.models.base import Base
 
 class UserStatus(enum.Enum):
     NEW = "new"
-    APPROVED = "approved"
+    ACTIVE = "active"
     BANNED = "ban"
 
-    """
-    REJECTED -  отклонены изменения, т.е. исли пользователь активный, а данные были изменены, то старые данные
-    сохраняются, а новые отклонены. Т.е. статус в Specialist остается в APPROVED
-    
-    DELETED - после удаления, может повторно зарегистрироваться
-    NEW_CHANGES - если были изменения, но Specialist APPROVED
-    """
+class UserModerateResult(enum.Enum):
+    NEW_CHANGES = "new"
+    APPROVED = "approved"
+    BANNED = "ban"
+    DELETED = "deleted"
+    REJECTED = "rejected"
+    DELAY = "delay"
+
 
 class ModerateStatus(enum.Enum):
     NEW = "new"
@@ -26,6 +27,7 @@ class ModerateStatus(enum.Enum):
     REJECTED = "rejected"
     NEW_CHANGES = "new_changes"
     BANNED = "ban"
+    PERMANENTLY_BANNED = "permanently_banned"
     DELETED = "deleted"
 
 class Specialist(Base):
@@ -33,13 +35,13 @@ class Specialist(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     status: Mapped[UserStatus] = mapped_column(SqlEnum(UserStatus), default=UserStatus.NEW)
-    moderate_result: Mapped[ModerateStatus] = mapped_column(SqlEnum(ModerateStatus), nullable=True)
+    moderate_result: Mapped[UserModerateResult] = mapped_column(SqlEnum(UserModerateResult), nullable=True)
     message_to_user: Mapped[str] = mapped_column(String(300), nullable=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False,  default='на модерации')
+    name: Mapped[str] = mapped_column(String(30), nullable=False,  default='на модерации')
     phone: Mapped[str] = mapped_column(String(15), nullable=False,  default='на модерации')
     telegram: Mapped[str] = mapped_column(String(50), nullable=True)
     email: Mapped[str] = mapped_column(String(50), nullable=True)
-    specialty: Mapped[str] = mapped_column(String(50), nullable=False,  default='на модерации')
+    specialty: Mapped[str] = mapped_column(String(100), nullable=False,  default='на модерации')
     about: Mapped[str] = mapped_column(Text, nullable=False, default='на модерации')
     photo_telegram: Mapped[str] = mapped_column(String(300), nullable=True)
     photo_local: Mapped[str] = mapped_column(String(300), nullable=True)
@@ -58,16 +60,17 @@ class ModerateData(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     status: Mapped[ModerateStatus] = mapped_column(SqlEnum(ModerateStatus), default=ModerateStatus.NEW)
     message_to_user: Mapped[str] = mapped_column(String(300), nullable=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False,)
-    phone: Mapped[str] = mapped_column(String(15), nullable=False)
+    name: Mapped[str] = mapped_column(String(30), nullable=True)
+    phone: Mapped[str] = mapped_column(String(15), nullable=True)
     telegram: Mapped[str] = mapped_column(String(50), nullable=True)
     email: Mapped[str] = mapped_column(String(50), nullable=True)
-    specialty: Mapped[str] = mapped_column(String(50), nullable=False)
-    about: Mapped[str] = mapped_column(Text, nullable=False)
+    specialty: Mapped[str] = mapped_column(String(100), nullable=True)
+    about: Mapped[str] = mapped_column(Text, nullable=True)
     photo_telegram: Mapped[str] = mapped_column(String(300), nullable=True)
     photo_local: Mapped[str] = mapped_column(String(300), nullable=True)
     updated_at: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     ban_reason: Mapped[str] = mapped_column(String(300), nullable=True)
+    message_to_admin: Mapped[str] = mapped_column(String(700), nullable=True)
 
 
     def __repr__(self):
@@ -75,4 +78,9 @@ class ModerateData(Base):
 
 
 
+class ModerateLog(Base):
+    __tablename__ = 'moderate_log'
+
+    user_id: Mapped[int] = mapped_column(primary_key=True)
+    updated_at: Mapped[DateTime] = mapped_column(DateTime, primary_key=True, nullable=False)
 

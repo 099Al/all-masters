@@ -3,10 +3,9 @@ from aiogram.fsm.state import StatesGroup, State
 class CheckinDialog(StatesGroup):
     checkin_message = State()
     info_message = State()
-    name = State()
-    phone = State()
+    request_phone = State()
     email = State()
-    telegram = State()
+    name = State()
     specialty = State()
     about = State()
     photo = State()
@@ -14,12 +13,12 @@ class CheckinDialog(StatesGroup):
     answer = State()
 
 class EditDialog(StatesGroup):
-    name = State()
-    phone = State()
+    request_phone = State()
     email = State()
-    telegram = State()
+    name = State()
     specialty = State()
     about = State()
     photo = State()
+    message_to_admin = State()
     confirm = State()
     answer = State()
