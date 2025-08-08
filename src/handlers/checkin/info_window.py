@@ -10,6 +10,7 @@ from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
 from sqlalchemy.future import select
 
+from src.config_paramaters import EDIT_REQUEST_LIMIT
 from src.database.connect import DataBase
 from src.database.models import UserStatus, Specialist, ModerateStatus, UserModerateResult
 from src.database.requests_db import ReqData
@@ -53,6 +54,16 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
     photo_telegram = data.get("photo_telegram")
 
     data_info = {'available_change': True}
+
+    req = ReqData()
+    cnt_req = await req.get_cnt_edit_request(data['user_id'])
+
+
+    if cnt_req >= EDIT_REQUEST_LIMIT:
+        await req.update_specialist(data['user_id'], moderate_result=UserModerateResult.DELAY)
+        moderate_result = UserModerateResult.DELAY
+        data_info["available_change"] = False
+
     if status == UserStatus.NEW and moderate_result is None:
         data_info["info"] = "Ваша заявка ждет модерации."
     elif status == UserStatus.NEW and moderate_result == UserModerateResult.NEW_CHANGES:

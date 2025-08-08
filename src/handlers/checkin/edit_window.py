@@ -13,6 +13,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInp
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
 from src.config import settings
+from src.config_paramaters import UTC_PLUS_5
 from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, UserModerateResult, ModerateLog
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
@@ -235,7 +236,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         about=dialog_manager.dialog_data.get('about', dialog_manager.start_data['about']),
         photo_telegram=img_telegram_id,
         photo_local=local_path,
-        updated_at=datetime.now(),
+        updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None),
         message_to_admin=dialog_manager.dialog_data.get('message_to_admin')
     )
 
@@ -245,7 +246,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     log_moderate = ModerateLog(
         user_id=user_id,
-        updated_at=datetime.now().replace(microsecond=0)
+        updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None)
     )
 
     await req.save_profile_data(log_moderate)

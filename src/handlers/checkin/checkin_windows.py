@@ -15,6 +15,7 @@ from aiogram.types import KeyboardButton
 
 from src import config
 from src.config import settings
+from src.config_paramaters import UTC_PLUS_5
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus
 from src.database.requests_db import ReqData
@@ -237,7 +238,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             about=dialog_manager.dialog_data.get('about'),
             photo_telegram=img_telegram_id,
             photo_local=local_path,
-            updated_at=datetime.now()
+            updated_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
         )
 
         specialist = Specialist(
@@ -251,7 +252,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             about=dialog_manager.dialog_data.get('about', 'empty'),
             photo_telegram=img_telegram_id,
             photo_local=local_path,
-            created_at=datetime.now()
+            created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
         )
 
         req = ReqData()

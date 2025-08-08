@@ -34,18 +34,6 @@ async def start_menu(message: Message, dialog_manager: DialogManager):
 
 
 async def user_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    """
-    Пользователь заходит 1й раз. Предлагается зарегистрироваться
-    Данные попадают в Specialist (id, status=NEW, и поля по дефолту: на модерации)
-
-    Пользователь заходит после регистрации:
-    Проверяется наличие в Specialist по id и статус.
-    Если NEW, значит пользователь валидируется 1й раз.
-    Берем данные из ModerateData. При редоктировании показываем их.
-    Если статус в Specialict APPROVED, то ищем данные в ModerateData, т.к. могли произойти доп. изменения.
-    И пользователя для редактирования показываем данные из ModerateData, но message_to_user из Specialist,
-    т.к. на основании него были отправлены данные в ModerateData (пользователь сейчас активный)
-    """
     user_id = callback.from_user.id
 
     req = ReqData()
