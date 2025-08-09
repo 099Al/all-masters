@@ -14,7 +14,7 @@ from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
 from src.config import settings
 from src.config_paramaters import UTC_PLUS_5
-from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, UserModerateResult, ModerateLog
+from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
 from aiogram.types import CallbackQuery
@@ -234,15 +234,15 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         email=dialog_manager.dialog_data.get('email', dialog_manager.start_data['email']),
         specialty=dialog_manager.dialog_data.get('specialty', dialog_manager.start_data['specialty']),
         about=dialog_manager.dialog_data.get('about', dialog_manager.start_data['about']),
-        photo_telegram=img_telegram_id,
-        photo_local=local_path,
+        photo_telegram=img_telegram_id or dialog_manager.start_data['photo_telegram'],
+        photo_local=local_path or dialog_manager.start_data['photo_local'],
         updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None),
         message_to_admin=dialog_manager.dialog_data.get('message_to_admin')
     )
 
     req = ReqData()
     await req.merge_profile_data(specialist_moderate)
-    await req.update_specialist(user_id, moderate_result=UserModerateResult.NEW_CHANGES)
+    await req.update_specialist(user_id, moderate_result=ModerateStatus.NEW_CHANGES)
 
     log_moderate = ModerateLog(
         user_id=user_id,

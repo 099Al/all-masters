@@ -12,7 +12,7 @@ from sqlalchemy.future import select
 
 from src.config_paramaters import EDIT_REQUEST_LIMIT
 from src.database.connect import DataBase
-from src.database.models import UserStatus, Specialist, ModerateStatus, UserModerateResult
+from src.database.models import UserStatus, Specialist, ModerateStatus
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
 
@@ -60,31 +60,31 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
 
 
     if cnt_req >= EDIT_REQUEST_LIMIT:
-        await req.update_specialist(data['user_id'], moderate_result=UserModerateResult.DELAY)
-        moderate_result = UserModerateResult.DELAY
+        await req.update_specialist(data['user_id'], moderate_result=ModerateStatus.DELAY)
+        moderate_result = ModerateStatus.DELAY
         data_info["available_change"] = False
 
     if status == UserStatus.NEW and moderate_result is None:
         data_info["info"] = "Ваша заявка ждет модерации."
-    elif status == UserStatus.NEW and moderate_result == UserModerateResult.NEW_CHANGES:
+    elif status == UserStatus.NEW and moderate_result == ModerateStatus.NEW_CHANGES:
         data_info["info"] = "Ваша заявка ждет модерации."
         await update_data(data)
-    elif status == UserStatus.NEW and (moderate_result == UserModerateResult.DELAY):
+    elif status == UserStatus.NEW and (moderate_result == ModerateStatus.DELAY):
         data_info["info"] = "Ваша заявка ждет модерации.\nОт вас слишком много запросов.\nПопробуйте внести изменения позже"
         await update_data(data)
         data_info["available_change"] = False
-    elif status == UserStatus.NEW and moderate_result == UserModerateResult.REJECTED:
+    elif status == UserStatus.NEW and moderate_result == ModerateStatus.REJECTED:
         data_info["info"] = f"Ваша анкета отклонена.\nПричина:{message_to_user}"
-    elif status == UserStatus.ACTIVE and moderate_result == UserModerateResult.APPROVED:
+    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.APPROVED:
         data_info["info"] = f"Ваша анкета одобрена.\nТеперь вы доступны для пользователей."
-    elif status == UserStatus.ACTIVE and moderate_result == UserModerateResult.NEW_CHANGES:
+    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.NEW_CHANGES:
         data_info["info"] = f"Новые данные на модерации."
         await update_data(data)
-    elif status == UserStatus.ACTIVE and moderate_result == UserModerateResult.DELAY:
+    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.DELAY:
         data_info["info"] = f"Ваша анкета на модерации.\nОт вас слишком много запросов.\nПопробуйте внести изменения позже"
         await update_data(data)
         data_info["available_change"] = False
-    elif status == UserStatus.ACTIVE and moderate_result == UserModerateResult.REJECTED:
+    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.REJECTED:
         data_info["info"] = f"Новые изменения отклонены.\nПричина:{message_to_user}"
     elif status == UserStatus.BANNED:
         data_info["info"] = f"Ваша анкета заблокирована.\nПричина:{message_to_user}"
