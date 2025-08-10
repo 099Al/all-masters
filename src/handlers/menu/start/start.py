@@ -1,23 +1,17 @@
-from datetime import datetime
-
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, SwitchTo
-from aiogram_dialog.widgets.text import Format, Const, List
-from sqlalchemy.future import select
+from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.text import Format, Const
 
-from src.database.connect import DataBase
-from src.database.models import Specialist, ModerateData, UserStatus
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog
-from src.handlers.start.start_state import StartDialog
+from src.handlers.menu.start.start_state import StartDialog
 
 #from src.log_config import *
 
-from src.log_settings import *
 import logging
 logger = logging.getLogger(__name__)
 
@@ -31,7 +25,6 @@ async def start_menu(message: Message, dialog_manager: DialogManager):
         await dialog_manager.start(StartDialog.start, mode=StartMode.RESET_STACK)
     except Exception as e:
         logger.error(f"Error in start. bot_id: {message.bot.id}. {e}")
-
 
 async def user_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     user_id = callback.from_user.id
