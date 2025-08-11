@@ -25,7 +25,7 @@ async def user_registration(message: Message, bot: Bot, dialog_manager: DialogMa
     user_id = message.chat.id
 
     req = ReqData()
-    res = await req.get_specialist_date(user_id)
+    res = await req.get_specialist_data(user_id)
 
     if res:
         user_data = {"user_id": user_id,
