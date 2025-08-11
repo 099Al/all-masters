@@ -30,7 +30,7 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
     user_id = callback.from_user.id
 
     req = ReqData()
-    res = await req.get_specialist_date(user_id)
+    res = await req.get_specialist_data(user_id)
 
     if res:
         user_data = {"user_id": user_id,
@@ -40,7 +40,7 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
                  "phone": res.phone,
                  "email": res.email,
                  "telegram": res.telegram,
-                 "specialty": res.specialty,
+                 "services": res.services,
                  "about": res.about,
                  "status": res.status,
                  "moderate_result": res.moderate_result,

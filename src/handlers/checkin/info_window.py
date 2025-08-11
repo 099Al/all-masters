@@ -26,7 +26,7 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
 
 async def update_data(data):
     req = ReqData()
-    res_m = await req.get_moderate_date(data['user_id'])
+    res_m = await req.get_moderate_data(data['user_id'])
 
     # merge Specialist and ModerateData
     if res_m.name:
@@ -37,8 +37,8 @@ async def update_data(data):
         data['telegram'] = res_m.telegram
     if res_m.email:
         data['email'] = res_m.email
-    if res_m.specialty:
-        data['specialty'] = res_m.specialty
+    if res_m.services:
+        data['services'] = res_m.services
     if res_m.about:
         data['about'] = res_m.about
     if res_m.photo_telegram:
@@ -95,7 +95,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         #image = MediaAttachment(ContentType.PHOTO, path=r'full_path\src\images\ .jpg')
         data_info["photo"] = image
 
-    data_info["profile_info"] = f"Имя: {data['name']}\nТелефон: {data['phone']}\nTelegram: {data['telegram']}\nEmail: {data['email']}\nСпециальность: {data['specialty']}\nО себе: {data['about']}"
+    data_info["profile_info"] = f"Имя: {data['name']}\nТелефон: {data['phone']}\nTelegram: {data['telegram']}\nEmail: {data['email']}\nУслуги: {data['services']}\nО себе: {data['about']}"
 
     return data_info
 

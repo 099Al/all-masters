@@ -91,7 +91,7 @@ async def getter_edit_email(dialog_manager: DialogManager, **kwargs):
 
 async def edit_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['email'] = message.text
-    await dialog_manager.switch_to(EditDialog.specialty)
+    await dialog_manager.switch_to(EditDialog.services)
 
 
 def validate_email(email: str) -> str:
@@ -121,24 +121,24 @@ window_edit_email = Window(
 )
 
 
-async def getter_edit_specialty(dialog_manager: DialogManager, **kwargs):
+async def getter_edit_services(dialog_manager: DialogManager, **kwargs):
     user_data = dialog_manager.start_data
-    return {"specialty": user_data['specialty']}
+    return {"services": user_data['services']}
 
-async def edit_specialty(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['specialty'] = message.text
+async def edit_services(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    dialog_manager.dialog_data['services'] = message.text
     await dialog_manager.switch_to(EditDialog.about)
 
-window_edit_specialty = Window(
-    Format("Ваша специальность: {specialty}\nДля изменения введите новое значение"),
-    TextInput(id="edit_specialty",
+window_edit_services = Window(
+    Format("Ваши услуги: {services}\nДля изменения введите новое значение"),
+    TextInput(id="edit_services",
               type_factory=str,
-              on_success=edit_specialty,
+              on_success=edit_services,
               ),
-    Back(Const("🔙 Назад"), id="back_edit_specialty"),
+    Back(Const("🔙 Назад"), id="back_edit_services"),
     Next(Const("⏩ Пропустить"), id="skip"),
-    state=EditDialog.specialty,
-    getter=getter_edit_specialty
+    state=EditDialog.services,
+    getter=getter_edit_services
 )
 
 
@@ -232,7 +232,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         phone=dialog_manager.dialog_data.get('phone', dialog_manager.start_data['phone']),
         telegram=dialog_manager.dialog_data.get('telegram', dialog_manager.start_data['telegram']),
         email=dialog_manager.dialog_data.get('email', dialog_manager.start_data['email']),
-        specialty=dialog_manager.dialog_data.get('specialty', dialog_manager.start_data['specialty']),
+        services=dialog_manager.dialog_data.get('services', dialog_manager.start_data['services']),
         about=dialog_manager.dialog_data.get('about', dialog_manager.start_data['about']),
         photo_telegram=img_telegram_id or dialog_manager.start_data['photo_telegram'],
         photo_local=local_path or dialog_manager.start_data['photo_local'],

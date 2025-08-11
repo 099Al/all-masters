@@ -96,7 +96,7 @@ window_email = Window(
 
 async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['name'] = widget.get_value()
-    await dialog_manager.switch_to(CheckinDialog.specialty)
+    await dialog_manager.switch_to(CheckinDialog.services)
 
 def validate_name(name: str) -> str:
     invalid_char_pattern = r'[0-9!@#$%^&*_+=\[\]{};:"\\|,.<>\/?]'
@@ -123,28 +123,28 @@ window_name = Window(
 
 
 
-async def save_specialty(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['specialty'] = message.text
+async def save_service(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    dialog_manager.dialog_data['services'] = message.text
     await dialog_manager.switch_to(CheckinDialog.about)
 
-async def error_specialty(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+async def error_service(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
     await message.answer(error.args[0])
 
-def validate_specialty(specialty: str) -> str:
-    if len(specialty) > 100:
-        raise ValueError("Слишком много символов")
+def validate_service(service: str) -> str:
+    if len(service) > 100:
+        raise ValueError("Слишком большое описание\n Постарайте описать кратко (не более 100 символов)")
     else:
-        return specialty
+        return service
 
-window_specialty = Window(
-                Format("Введите ваши специальности\n(через запятую или точку,\nне более 3х)"),
-                TextInput(id="input_specialty",
-                          type_factory=validate_specialty,
-                          on_success=save_specialty,
-                          on_error=error_specialty
+window_services = Window(
+                Format("Опишите кратко услуги, которые вы предоставляете\nНапример: мойка ковров, уборка квартиры"),
+                TextInput(id="input_service",
+                          type_factory=validate_service,
+                          on_success=save_service,
+                          on_error=error_service
                           ),
-                Back(Const("🔙 Назад"), id="back_specialty"),
-                state=CheckinDialog.specialty,
+                Back(Const("🔙 Назад"), id="back_service"),
+                state=CheckinDialog.services,
 )
 
 
@@ -163,13 +163,13 @@ def validate_about(about: str) -> str:
         return about
 
 window_about = Window(
-                Format("Напишите о себе.\nМожете указать стоимость работ, адрес\nи другую информацию"),
+                Format("Напишите подробнее о себе.\nМожете указать стоимость работ, адрес\nи другую информацию"),
                 TextInput(id="input_about",
                           type_factory=validate_about,
                           on_success=save_about,
                           on_error=error_about
                           ),
-                Back(Const("🔙 Назад"), id="back_specialty"),
+                Back(Const("🔙 Назад"), id="back_service"),
                 state=CheckinDialog.about,
 )
 
@@ -200,7 +200,7 @@ async def getter_confirm(dialog_manager: DialogManager, **kwargs):
         , "phone": user_data['phone']
         , "telegram": '@' + kwargs['event_from_user'].username
         , "email": user_data.get('email', '-')
-        , "specialty": user_data.get('specialty', '-')
+        , "services": user_data.get('services', '-')
         , "about": user_data.get('about', '-')
     }
 
@@ -208,7 +208,7 @@ window_confirm = Window(
     Format("Осталось подтвердить заявку"),
     Format("Подтверждая заявку, вы даете соглашаетесь с условиями использования сервиса"),
     #TODO Link to Site Politics
-    Format("<b>Ваши данные:</b>\n<b>Имя:</b> {name}\n<b>Телефон:</b> {phone}\n<b>Telegram:</b> {telegram}\n<b>Email:</b> {email}\n<b>Специальность:</b> {specialty}\n<b>О себе:</b> {about}"),
+    Format("<b>Ваши данные:</b>\n<b>Имя:</b> {name}\n<b>Телефон:</b> {phone}\n<b>Telegram:</b> {telegram}\n<b>Email:</b> {email}\n<b>Услуги:</b> {services}\n{about}"),
     Back(Const("🔙 Назад"), id="back_confirm"),
     Next(Const("Подтвердить"), id="confirm"),
     state=CheckinDialog.confirm,
@@ -234,7 +234,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             phone=dialog_manager.dialog_data.get('phone'),
             email=dialog_manager.dialog_data.get('email'),
             telegram=dialog_manager.dialog_data.get('telegram'),
-            specialty=dialog_manager.dialog_data.get('specialty'),
+            services=dialog_manager.dialog_data.get('services'),
             about=dialog_manager.dialog_data.get('about'),
             photo_telegram=img_telegram_id,
             photo_local=local_path,
@@ -248,7 +248,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             phone=dialog_manager.dialog_data.get('phone', 'empty'),
             email=dialog_manager.dialog_data.get('email'),
             telegram=dialog_manager.dialog_data.get('telegram', 'empty'),
-            specialty=dialog_manager.dialog_data.get('specialty', 'empty'),
+            services=dialog_manager.dialog_data.get('services', 'empty'),
             about=dialog_manager.dialog_data.get('about', 'empty'),
             photo_telegram=img_telegram_id,
             photo_local=local_path,
