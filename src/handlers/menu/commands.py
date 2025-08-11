@@ -35,7 +35,7 @@ async def user_registration(message: Message, bot: Bot, dialog_manager: DialogMa
                  "phone": res.phone,
                  "email": res.email,
                  "telegram": res.telegram,
-                 "specialty": res.specialty,
+                 "services": res.services,
                  "about": res.about,
                  "status": res.status,
                  "moderate_result": res.moderate_result,
