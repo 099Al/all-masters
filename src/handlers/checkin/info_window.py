@@ -51,7 +51,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
     status = data.get("status")
     moderate_result = data.get("moderate_result")
     message_to_user = data.get("message_to_user")
-    photo_telegram = data.get("photo_telegram")
+
 
     data_info = {'available_change': True}
 
@@ -90,6 +90,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         data_info["info"] = f"Ваша анкета заблокирована.\nПричина:{message_to_user}"
         data_info["available_change"] = False
 
+    photo_telegram = data.get("photo_telegram")  #photo обновилось после update_data
     if photo_telegram:
         image = MediaAttachment(ContentType.PHOTO, file_id=MediaId(photo_telegram))
         #image = MediaAttachment(ContentType.PHOTO, path=r'full_path\src\images\ .jpg')
