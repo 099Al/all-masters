@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     TOKEN_ID: str
     BOT_ID: str
 
+    GPT_KEY: str
+
     #instead load_dotenv()
     path_root: str = str(Path(__file__).resolve().parent.parent)
     path_env: str = str(Path(__file__).resolve().parent.parent / '.env')
