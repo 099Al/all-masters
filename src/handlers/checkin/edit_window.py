@@ -224,7 +224,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
     specialist_status = dialog_manager.start_data['status']
 
     #TODO: update Specialist moderate_result to NEW_CHANGES
-
+    #start_data - это информация из Specialist и MooderateData (информация в ModerateData в приоритете)
     specialist_moderate = ModerateData(
         id=user_id,
         status=ModerateStatus.NEW_CHANGES,
