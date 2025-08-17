@@ -169,7 +169,7 @@ async def getter_edit_photo(dialog_manager: DialogManager, **kwargs):
 
 async def edit_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
-    await dialog_manager.switch_to(EditDialog.confirm)
+    await dialog_manager.switch_to(EditDialog.message_to_admin)
 
 window_edit_photo = Window(
     Format("Для изменения загрузите новое фото"),
