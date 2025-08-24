@@ -26,7 +26,7 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
 
 async def update_data(data):
     req = ReqData()
-    res_m = await req.get_moderate_date(data['user_id'])
+    res_m = await req.get_moderate_data(data['user_id'])
 
     # merge Specialist and ModerateData
     if res_m.name:
@@ -37,12 +37,14 @@ async def update_data(data):
         data['telegram'] = res_m.telegram
     if res_m.email:
         data['email'] = res_m.email
-    if res_m.specialty:
-        data['specialty'] = res_m.specialty
+    if res_m.services:
+        data['services'] = res_m.services
     if res_m.about:
         data['about'] = res_m.about
     if res_m.photo_telegram:
         data['photo_telegram'] = res_m.photo_telegram
+    if res_m.photo_local:
+        data['photo_local'] = res_m.photo_local
 
 
 async def getter_info(dialog_manager: DialogManager, **kwargs):
@@ -51,7 +53,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
     status = data.get("status")
     moderate_result = data.get("moderate_result")
     message_to_user = data.get("message_to_user")
-    photo_telegram = data.get("photo_telegram")
+
 
     data_info = {'available_change': True}
 
@@ -64,6 +66,11 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         moderate_result = ModerateStatus.DELAY
         data_info["available_change"] = False
 
+    #TODO: рассмотерть вариант: запрос изначально идет к ModerateDate,
+    # если там есть данные - значит они модерации. там может быть статус Delay
+    # если нет, то идет запрос к Specialist. Далее смотреть на UserStatus и moderate_result
+    # при этом можем получить статусы REJECTED и BANNED в ModerateDate, до того как они попали в Specialist
+
     if status == UserStatus.NEW and moderate_result is None:
         data_info["info"] = "Ваша заявка ждет модерации."
     elif status == UserStatus.NEW and moderate_result == ModerateStatus.NEW_CHANGES:
@@ -75,9 +82,10 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         data_info["available_change"] = False
     elif status == UserStatus.NEW and moderate_result == ModerateStatus.REJECTED:
         data_info["info"] = f"Ваша анкета отклонена.\nПричина:{message_to_user}"
+    #=========================================================================================
     elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.APPROVED:
         data_info["info"] = f"Ваша анкета одобрена.\nТеперь вы доступны для пользователей."
-    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.NEW_CHANGES:
+    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.NEW_CHANGES:          #TODO: этот статус должен уйти в модерацию. Чтобы не делать частые обновления в Specialist
         data_info["info"] = f"Новые данные на модерации."
         await update_data(data)
     elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.DELAY:
@@ -90,12 +98,13 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         data_info["info"] = f"Ваша анкета заблокирована.\nПричина:{message_to_user}"
         data_info["available_change"] = False
 
+    photo_telegram = data.get("photo_telegram")  #photo обновилось после update_data
     if photo_telegram:
         image = MediaAttachment(ContentType.PHOTO, file_id=MediaId(photo_telegram))
         #image = MediaAttachment(ContentType.PHOTO, path=r'full_path\src\images\ .jpg')
         data_info["photo"] = image
 
-    data_info["profile_info"] = f"Имя: {data['name']}\nТелефон: {data['phone']}\nTelegram: {data['telegram']}\nEmail: {data['email']}\nСпециальность: {data['specialty']}\nО себе: {data['about']}"
+    data_info["profile_info"] = f"Имя: {data['name']}\nТелефон: {data['phone']}\nTelegram: {data['telegram']}\nEmail: {data['email']}\nУслуги: {data['services']}\nО себе: {data['about']}"
 
     return data_info
 
