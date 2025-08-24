@@ -1,3 +1,4 @@
+
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery
@@ -13,6 +14,9 @@ from src.handlers.menu.start.start_state import StartDialog
 #from src.log_config import *
 
 import logging
+
+from src.handlers.search.search_state import SearchSpecialistDialog
+
 logger = logging.getLogger(__name__)
 
 
@@ -52,7 +56,7 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
 
 
 async def search_user(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    pass
+    await dialog_manager.start(SearchSpecialistDialog.category, mode=StartMode.RESET_STACK)
 
 
 dialog_start = Dialog(
