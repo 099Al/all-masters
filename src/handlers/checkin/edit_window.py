@@ -242,7 +242,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     req = ReqData()
     await req.merge_profile_data(specialist_moderate)
-    await req.update_specialist(user_id, moderate_result=ModerateStatus.NEW_CHANGES)
+    await req.update_specialist(user_id, moderate_result=ModerateStatus.NEW_CHANGES)   #TODO: возможно нужно убрать. См. замечание в info_window
 
     log_moderate = ModerateLog(
         user_id=user_id,

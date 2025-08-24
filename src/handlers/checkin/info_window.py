@@ -66,6 +66,11 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         moderate_result = ModerateStatus.DELAY
         data_info["available_change"] = False
 
+    #TODO: рассмотерть вариант: запрос изначально идет к ModerateDate,
+    # если там есть данные - значит они модерации. там может быть статус Delay
+    # если нет, то идет запрос к Specialist. Далее смотреть на UserStatus и moderate_result
+    # при этом можем получить статусы REJECTED и BANNED в ModerateDate, до того как они попали в Specialist
+
     if status == UserStatus.NEW and moderate_result is None:
         data_info["info"] = "Ваша заявка ждет модерации."
     elif status == UserStatus.NEW and moderate_result == ModerateStatus.NEW_CHANGES:
@@ -77,9 +82,10 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         data_info["available_change"] = False
     elif status == UserStatus.NEW and moderate_result == ModerateStatus.REJECTED:
         data_info["info"] = f"Ваша анкета отклонена.\nПричина:{message_to_user}"
+    #=========================================================================================
     elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.APPROVED:
         data_info["info"] = f"Ваша анкета одобрена.\nТеперь вы доступны для пользователей."
-    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.NEW_CHANGES:
+    elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.NEW_CHANGES:          #TODO: этот статус должен уйти в модерацию. Чтобы не делать частые обновления в Specialist
         data_info["info"] = f"Новые данные на модерации."
         await update_data(data)
     elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.DELAY:
