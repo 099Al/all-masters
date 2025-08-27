@@ -26,8 +26,10 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
 async def serch_by_user_input(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     req = ReqData()
     l_spec = await req.find_specialists_by_similarity(text)
-    print('===',l_spec)
+    #TODO: перевести в состояние
+    print(l_spec)
     return {'specialists': l_spec}
+
 
 
 window_categories = Window(
@@ -79,6 +81,11 @@ window_services = Window(
         width=2
     ),
     Back(Const("Назад"), id="back_to_category_search"),
+    TextInput(
+        id="search",
+        type_factory=str,
+        on_success=serch_by_user_input
+    ),
     state=SearchSpecialistDialog.service,
     getter=getter_services
 )
