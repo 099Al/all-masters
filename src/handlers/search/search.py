@@ -23,6 +23,13 @@ async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager:
     await dialog_manager.done()
     await dialog_manager.start(StartDialog.start, mode=StartMode.RESET_STACK)
 
+async def serch_by_user_input(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    req = ReqData()
+    l_spec = await req.find_specialists_by_similarity(text)
+    print('===',l_spec)
+    return {'specialists': l_spec}
+
+
 window_categories = Window(
     Format("Выберите категорию"),
     Group(
@@ -36,6 +43,11 @@ window_categories = Window(
         width=2
     ),
     Button(Const("Назад"), id="back_to_start", on_click=back_to_start),
+    TextInput(
+        id="search",
+        type_factory=str,
+        on_success=serch_by_user_input
+    ),
     state=SearchSpecialistDialog.category,
     getter=getter_categories
 
@@ -106,7 +118,7 @@ window_specialists = Window(
 dialog_search = Dialog(
     window_categories,
     window_services,
-window_specialists
+    window_specialists
 )
 
 
