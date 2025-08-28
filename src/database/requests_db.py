@@ -2,14 +2,15 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from sqlite3 import IntegrityError
 
-from sqlalchemy import select, func, text, or_
+from sqlalchemy import select, func, text, or_, literal
 from sqlalchemy.orm import selectinload
 
 
 from src.config_paramaters import UTC_PLUS_5, SIMILARITY_THRESHOLD
 from src.database.api_gpt import define_category_from_specialties
 from src.database.connect import DataBase
-from src.database.models import Specialist, ModerateData, ModerateLog, ModerateStatus, Category, Service
+from src.database.models import Specialist, ModerateData, ModerateLog, ModerateStatus, Category, Service, \
+    SpecialistService, UserStatus
 from sqlalchemy import update
 
 
@@ -112,11 +113,18 @@ class ReqData:
 
         return count
 
-    async def get_categories(self):
+    async def get_categories(self, is_new=None):
         async with self.session() as session:
-            result = await session.execute(select(Category))
-            res = result.scalars().all()
-        return res
+
+            if is_new is not None:
+                result = await session.execute(select(Category).where(Category.is_new == is_new))
+                res = result.scalars().all()
+            else:
+                result = await session.execute(select(Category))
+                res = result.scalars().all()
+
+            return res
+
 
     async def get_services(self):
         async with self.session() as session:
@@ -124,6 +132,15 @@ class ReqData:
             res = result.scalars().all()
         return res
 
+    async def get_services_by_category(self, category_id, is_new=False):
+        async with self.session() as session:
+            result = await session.execute(
+                select(Service)
+                .where(Service.category_id == category_id)
+                .where(Service.is_new == is_new)
+            )
+            res = result.scalars().all()
+        return res
 
     async def get_category_services(self):
         async with self.session() as session:
@@ -135,14 +152,46 @@ class ReqData:
                 category_services[category].append(service)
             return dict(category_services)
 
+    async def get_specialists_by_service(self, service_id):
+        async with self.session() as session:
+            result = await session.execute(
+                select(Specialist)
+                .join(SpecialistService, SpecialistService.specialist_id == Specialist.id)
+                .where(SpecialistService.service_id == service_id)
+                .where(Specialist.status == UserStatus.ACTIVE)
+            )
+            res = result.scalars().all()
+        return res
 
+    async def find_specialists_by_similarity(
+            self,
+            search_term: str,
+            threshold: float = SIMILARITY_THRESHOLD,
+    ):
+        """
+        Ищет специалистов по схожести search_term с l_services и l_work_types.
+        Возвращает список (Specialist, similarity), отсортированный по убыванию similarity.
+        """
+        async with self.session() as session:
+            l_services_elem = func.jsonb_array_elements_text(Specialist.l_services).table_valued("value")
+            l_work_types_elem = func.jsonb_array_elements_text(Specialist.l_work_types).table_valued("value")
 
+            sm_services = func.max(func.similarity(l_services_elem.c.value, literal(search_term)))
+            sm_work_types = func.max(func.similarity(l_work_types_elem.c.value, literal(search_term)))
 
+            stmt = (
+                select(Specialist)
+                .join(l_services_elem, literal(True), isouter=True)
+                .join(l_work_types_elem, literal(True), isouter=True)
+                .group_by(Specialist.id)
+                .having(func.greatest(sm_services, sm_work_types) >= threshold)
+                .order_by(func.greatest(sm_services, sm_work_types).desc())
+            )
 
+            result = await session.execute(stmt)
+            specialists = result.scalars().all()
 
-
-
-
+            return specialists
 
     #     for id, specialties in res:
     #         # TODO: возможно это делать вручную без api-gpt
