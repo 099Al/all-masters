@@ -28,7 +28,6 @@ class Settings(BaseSettings):
     def connect_url(self):
         return f'{self.ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
 
-
     IMAGES: str = 'src/images'
     NEW_IMAGES: str = 'src/new_images'
 
