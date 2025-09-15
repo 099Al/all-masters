@@ -1,7 +1,7 @@
 from aiogram.types import ContentType
-from aiogram.types import CallbackQuery, Message, User
+from aiogram.types import CallbackQuery, Message, WebAppInfo
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next, Cancel, RequestContact, Select, Group
+from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next, Cancel, RequestContact, Select, Group, Url, WebApp, ListGroup
 from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
@@ -65,20 +65,23 @@ async def getter_services(dialog_manager: DialogManager, **kwargs):
 
 async def select_service(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, item_id: int):
     dialog_manager.dialog_data['service'] = item_id
+    # TODO: вывод списка специалистов в WEB
+    print('select_service')
     await dialog_manager.switch_to(SearchSpecialistDialog.specialists)
 
 
 window_services = Window(
     Format("Выберите услугу"),
     Group(
-        Select(
-            Format('{item.name}'),
+    ListGroup(
+        Url(text=Format('{item.name}'),
+            url=Const('http://127.0.0.1:8002/profiles/'),
+            ),
             id='service',
             item_id_getter=lambda x: x.id,
             items='services',
-            on_click=select_service
-        ),
-        width=2
+    ),
+        width = 2
     ),
     Back(Const("Назад"), id="back_to_category_search"),
     TextInput(
@@ -96,10 +99,14 @@ async def getter_specialists(dialog_manager: DialogManager, **kwargs):
 
     req = ReqData()
     res = await req.get_specialists_by_service(service_id=int(service_id))
-    print(res)
+
+    web_app = WebAppInfo(url="http://127.0.0.1:8002/profiles/")
+
+    print('getter_specialists', res)
     return {'specialists': res}
 
 async def select_specialist(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, item_id: int):
+    print('select_specialist')
     print(item_id)
 
 window_specialists = Window(
