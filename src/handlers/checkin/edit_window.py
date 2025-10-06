@@ -235,7 +235,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         services=dialog_manager.dialog_data.get('services', dialog_manager.start_data['services']),
         about=dialog_manager.dialog_data.get('about', dialog_manager.start_data['about']),
         photo_telegram=img_telegram_id or dialog_manager.start_data['photo_telegram'],
-        photo_local=local_path or dialog_manager.start_data['photo_local'],
+        photo_location=local_path or dialog_manager.start_data['photo_location'],
         updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None),
         message_to_admin=dialog_manager.dialog_data.get('message_to_admin')
     )

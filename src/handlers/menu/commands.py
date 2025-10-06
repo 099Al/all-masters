@@ -30,7 +30,7 @@ async def user_registration(message: Message, bot: Bot, dialog_manager: DialogMa
     if res:
         user_data = {"user_id": user_id,
                  "photo_telegram": res.photo_telegram,
-                 "photo_local": res.photo_local,
+                 "photo_location": res.photo_location,
                  "name": res.name,
                  "phone": res.phone,
                  "email": res.email,

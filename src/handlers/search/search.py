@@ -75,7 +75,10 @@ window_services = Window(
     Group(
     ListGroup(
         Url(text=Format('{item.name}'),
-            url=Const('http://127.0.0.1:8002/profiles/'),
+            url=Const('http://127.0.0.1:8001/profiles/'),
+            ),
+            WebApp(text=Format('{item.name}'),
+            url=Const('https://127.0.0.1:8001/profiles/'),
             ),
             id='service',
             item_id_getter=lambda x: x.id,
@@ -100,7 +103,7 @@ async def getter_specialists(dialog_manager: DialogManager, **kwargs):
     req = ReqData()
     res = await req.get_specialists_by_service(service_id=int(service_id))
 
-    web_app = WebAppInfo(url="http://127.0.0.1:8002/profiles/")
+    web_app = WebAppInfo(url="http://127.0.0.1:8001/profiles/")
 
     print('getter_specialists', res)
     return {'specialists': res}

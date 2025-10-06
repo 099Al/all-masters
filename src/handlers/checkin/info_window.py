@@ -43,8 +43,8 @@ async def update_data(data):
         data['about'] = res_m.about
     if res_m.photo_telegram:
         data['photo_telegram'] = res_m.photo_telegram
-    if res_m.photo_local:
-        data['photo_local'] = res_m.photo_local
+    if res_m.photo_location:
+        data['photo_location'] = res_m.photo_location
 
 
 async def getter_info(dialog_manager: DialogManager, **kwargs):

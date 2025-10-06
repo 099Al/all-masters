@@ -237,7 +237,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             services=dialog_manager.dialog_data.get('services'),
             about=dialog_manager.dialog_data.get('about'),
             photo_telegram=img_telegram_id,
-            photo_local=local_path,
+            photo_location=local_path,
             updated_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
         )
 
@@ -251,7 +251,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             services=dialog_manager.dialog_data.get('services', 'empty'),
             about=dialog_manager.dialog_data.get('about', 'empty'),
             photo_telegram=img_telegram_id,
-            photo_local=local_path,
+            photo_location=local_path,
             created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
         )
 
