@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 
 
 async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.switch_to(CheckinDialog.request_phone)
+    #await dialog_manager.switch_to(CheckinDialog.request_phone)
+    #телефон уже есть в таблице Users
+    await dialog_manager.switch_to(CheckinDialog.name)
 
 
 async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -45,28 +47,55 @@ window_checkin_start = Window(
 )
 
 
-async def contact_message(message: Message, widget: MessageInput, dialog_manager: DialogManager):
-    dialog_manager.dialog_data['phone'] = message.contact.phone_number
-    dialog_manager.dialog_data['telegram'] = message.from_user.username
+# async def contact_message(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+#     dialog_manager.dialog_data['phone'] = message.contact.phone_number
+#     dialog_manager.dialog_data['telegram'] = message.from_user.username
+#     await dialog_manager.switch_to(CheckinDialog.email)
+
+
+# window_phone = Window(
+#                 Format("Для регистрации нужен ваш телефон"),
+#                 RequestContact(Const("Отправить контакт")),
+#                 Back(Const("Назад"), id="back"),
+#                 MessageInput(contact_message, ContentType.CONTACT),
+#                 markup_factory=ReplyKeyboardFactory(
+#                             input_field_placeholder=Format("{event.from_user.username}"),
+#                             resize_keyboard=True,
+#                             one_time_keyboard=True
+#                             ),
+#                 state=CheckinDialog.request_phone,
+# )
+
+async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
+    dialog_manager.dialog_data['name'] = widget.get_value()
     await dialog_manager.switch_to(CheckinDialog.email)
 
+def validate_name(name: str) -> str:
+    invalid_char_pattern = r'[0-9!@#$%^&*_+=\[\]{};:"\\|,.<>\/?]'
+    if re.search(invalid_char_pattern, name):
+        raise ValueError("Имя содержит недопустимые символы")
+    elif len(name) > 30:
+        raise ValueError("Слишком длинное имя")
+    else:
+        return name
 
-window_phone = Window(
-                Format("Для регистрации нужен ваш телефон"),
-                RequestContact(Const("Отправить контакт")),
-                Back(Const("Назад"), id="back"),
-                MessageInput(contact_message, ContentType.CONTACT),
-                markup_factory=ReplyKeyboardFactory(
-                            input_field_placeholder=Format("{event.from_user.username}"),
-                            resize_keyboard=True,
-                            one_time_keyboard=True
-                            ),
-                state=CheckinDialog.request_phone,
+async def error_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
+    await message.answer(error.args[0])
+
+window_name = Window(
+                Format("Введите ваше имя"),
+                TextInput(id="input_name",
+                          type_factory=validate_name,
+                          on_success=save_name,
+                          on_error=error_name
+                          ),
+                Back(Const("🔙 Назад"), id="back_name"),
+                state=CheckinDialog.name
 )
 
 async def save_email(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
     dialog_manager.dialog_data['email'] = message.text
-    await dialog_manager.switch_to(CheckinDialog.name)
+    await dialog_manager.switch_to(CheckinDialog.services)
 
 def validate_email(email: str) -> str:
     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -94,32 +123,7 @@ window_email = Window(
 
 
 
-async def save_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
-    dialog_manager.dialog_data['name'] = widget.get_value()
-    await dialog_manager.switch_to(CheckinDialog.services)
 
-def validate_name(name: str) -> str:
-    invalid_char_pattern = r'[0-9!@#$%^&*_+=\[\]{};:"\\|,.<>\/?]'
-    if re.search(invalid_char_pattern, name):
-        raise ValueError("Имя содержит недопустимые символы")
-    elif len(name) > 30:
-        raise ValueError("Слишком длинное имя")
-    else:
-        return name
-
-async def error_name(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, error: ValueError):
-    await message.answer(error.args[0])
-
-window_name = Window(
-                Format("Введите ваше имя"),
-                TextInput(id="input_name",
-                          type_factory=validate_name,
-                          on_success=save_name,
-                          on_error=error_name
-                          ),
-                Back(Const("🔙 Назад"), id="back_name"),
-                state=CheckinDialog.name
-)
 
 
 
@@ -195,9 +199,17 @@ window_photo = Window(
 async def getter_confirm(dialog_manager: DialogManager, **kwargs):
     #dialog_manager.dialog_data['telegram'] = kwargs['event_from_user'].username
     user_data = dialog_manager.dialog_data
+    req = ReqData()
+    user = await req.get_user_data(kwargs['event_from_user'].id)
+
+    dialog_manager.dialog_data['phone'] = user.phone
+    dialog_manager.dialog_data['telegram'] = user.telegram
+
+
     return {
         "name": user_data.get('name', '-')
-        , "phone": user_data['phone']
+        # "phone": user_data['phone']
+        , "phone": user.phone
         , "telegram": '@' + kwargs['event_from_user'].username
         , "email": user_data.get('email', '-')
         , "services": user_data.get('services', '-')

@@ -9,7 +9,7 @@ from src.handlers.checkin.edit_window import (window_edit_name,  # window_edit_p
                                               )
 from src.handlers.checkin.info_window import window_info
 from src.handlers.checkin.checkin_windows import (
-    window_checkin_start, window_name, window_phone, window_email,
+    window_checkin_start, window_name, window_email,
     window_services, window_about, window_photo, window_confirm, window_answer
 )
 
@@ -25,9 +25,9 @@ window_user_checkin_done
 dialog_checkin = Dialog(
 window_info,
     window_checkin_start,
-    window_phone,
-    window_email,
+    #window_phone,
     window_name,
+    window_email,
     window_services,
     window_about,
     window_photo,

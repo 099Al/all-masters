@@ -11,9 +11,9 @@ class CheckinUserDialog(StatesGroup):
 class CheckinDialog(StatesGroup):
     checkin_message = State()
     info_message = State()
-    request_phone = State()
-    email = State()
+    #request_phone = State()
     name = State()
+    email = State()
     services = State()
     about = State()
     photo = State()
