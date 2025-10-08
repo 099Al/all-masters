@@ -9,7 +9,7 @@ from aiogram_dialog.widgets.kbd import Button
 
 
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog
+from src.handlers.checkin.profile_state import CheckinDialog, CheckinUserDialog
 from src.handlers.menu.start.start_state import StartDialog
 
 import logging
@@ -25,6 +25,15 @@ async def user_registration(message: Message, bot: Bot, dialog_manager: DialogMa
     user_id = message.chat.id
 
     req = ReqData()
+
+    res = await req.get_user_data(user_id)
+    if res:
+        if res.is_banned:
+            await dialog_manager.start(CheckinUserDialog.ban_message)
+            return
+
+
+
     res = await req.get_specialist_data(user_id)
 
     if res:
