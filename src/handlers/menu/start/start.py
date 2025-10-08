@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.text import Format, Const
 
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog
+from src.handlers.checkin.profile_state import CheckinDialog, CheckinUserDialog
 from src.handlers.menu.start.start_state import StartDialog
 
 #from src.log_config import *
@@ -26,11 +26,21 @@ start_router = Router()
 async def start_menu(message: Message, dialog_manager: DialogManager):
     try:
         #await message.answer("Добро пожаловать в каталог мастеров!")
-        await dialog_manager.start(StartDialog.start, mode=StartMode.RESET_STACK)
+
+        user_id = message.from_user.id
+        req = ReqData()
+        res = await req.get_user_data(user_id)
+        if res:
+            if res.is_banned:
+                await dialog_manager.start(CheckinUserDialog.ban_message, mode=StartMode.RESET_STACK)
+            else:
+                await dialog_manager.start(StartDialog.start, mode=StartMode.RESET_STACK)
+        else:
+            await dialog_manager.start(CheckinUserDialog.checkin_message, mode=StartMode.RESET_STACK)
     except Exception as e:
         logger.error(f"Error in start. bot_id: {message.bot.id}. {e}")
 
-async def user_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def specialist_registration(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     user_id = callback.from_user.id
 
     req = ReqData()
@@ -55,15 +65,22 @@ async def user_registration(callback: CallbackQuery, button: Button, dialog_mana
         await dialog_manager.start(CheckinDialog.checkin_message)
 
 
-async def search_user(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+async def search_specialist(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     await dialog_manager.start(SearchSpecialistDialog.category, mode=StartMode.RESET_STACK)
+
+
+
+#StartDialog.start
+# Проверка есть ли пользователь в базе
+# Если нет, то регистрация
+# Если есть, то Выберете действие
 
 
 dialog_start = Dialog(
         Window(
             Format("Выберите действие"),
-            Button(Const("Поиск мастеров"), id="search_master", on_click=search_user),
-            Button(Const("Я Мастер"), id="i_am_master", on_click=user_registration),
+            Button(Const("Поиск мастеров"), id="search_master", on_click=search_specialist),
+            Button(Const("Я Мастер"), id="i_am_master", on_click=specialist_registration),
             state=StartDialog.start,
         )
     )

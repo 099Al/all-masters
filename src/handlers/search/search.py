@@ -8,6 +8,7 @@ from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
 from src.database.requests_db import ReqData
 from src.handlers.menu.start.start_state import StartDialog
+from src.handlers.parameters import BASE_URL, BASE_URL_HTTP
 from src.handlers.search.search_state import SearchSpecialistDialog
 
 async def getter_categories(dialog_manager: DialogManager, **kwargs):
@@ -75,10 +76,10 @@ window_services = Window(
     Group(
     ListGroup(
         Url(text=Format('{item.name}'),
-            url=Const('http://127.0.0.1:8001/profiles/'),
+            url=Const(f'{BASE_URL_HTTP}/profiles/'),
             ),
             WebApp(text=Format('{item.name}'),
-            url=Const('https://127.0.0.1:8001/profiles/'),
+            url=Const(f'{BASE_URL}/profiles/'),
             ),
             id='service',
             item_id_getter=lambda x: x.id,

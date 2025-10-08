@@ -1,5 +1,13 @@
 from aiogram.fsm.state import StatesGroup, State
 
+class CheckinUserDialog(StatesGroup):
+    checkin_message = State()
+    ban_message = State()
+    checkin_service_rules = State()
+    request_phone = State()
+    checkin_user_done = State()
+
+
 class CheckinDialog(StatesGroup):
     checkin_message = State()
     info_message = State()
