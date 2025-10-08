@@ -29,7 +29,6 @@ async def user_registration(message: Message, bot: Bot, dialog_manager: DialogMa
     res = await req.get_user_data(user_id)
     if res:
         if res.is_banned:
-            print(1)
             await dialog_manager.start(CheckinUserDialog.ban_message)
             return
 
