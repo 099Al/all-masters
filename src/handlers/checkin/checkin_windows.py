@@ -181,11 +181,11 @@ window_about = Window(
 
 async def save_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
-    await dialog_manager.switch_to(CheckinDialog.confirm)
+    await dialog_manager.switch_to(CheckinDialog.photo_works)
 
 
 window_photo = Window(
-                Format("Добавьте фото"),
+                Format("Добавьте ваше фото"),
                 MessageInput(id="input_photo",
                           func=save_photo,
                           content_types=ContentType.PHOTO
@@ -193,6 +193,55 @@ window_photo = Window(
                 Back(Const("🔙 Назад"), id="back_offer"),
                 Next(Const("⏩ Пропустить"), id="skip"),
                 state=CheckinDialog.photo,
+)
+
+async def add_photo_works(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    dialog_manager.dialog_data['photo_works'] = {1: message.photo[-1].file_id}
+
+    await dialog_manager.switch_to(CheckinDialog.photo_works_another)
+
+async def skip_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(CheckinDialog.confirm)
+
+window_add_works_photo = Window(
+                Format("Добавьте фото ваших работ\n(не более 5)"),
+                MessageInput(id="input_photo_works",
+                          func=add_photo_works,
+                          content_types=ContentType.PHOTO
+                          ),
+                Back(Const("🔙 Назад"), id="back_photo"),
+                Button(Const("⏩ Пропустить"), id="skip_works_photo", on_click=skip_photo_works),
+                state=CheckinDialog.photo_works
+)
+
+
+async def add_another_photo_works(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    d_works_photo = dialog_manager.dialog_data['photo_works']
+    d_len = len(d_works_photo)
+    d_works_photo.update({d_len + 1: message.photo[-1].file_id})
+    if d_len + 1 >= 5:
+        await dialog_manager.switch_to(CheckinDialog.confirm)
+
+async def skip_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(CheckinDialog.confirm)
+
+async def getter_another_works_photo(dialog_manager: DialogManager, **kwargs):
+    d_works_photo = dialog_manager.dialog_data['photo_works']
+    return {
+        "photo_works_cnt": 5 - len(d_works_photo)
+    }
+
+
+window_add_another_works_photo = Window(
+                Format("Добавьте еще фото\n(осталось {photo_works_cnt}"),
+                MessageInput(id="input_another_photo_works",
+                          func=add_another_photo_works,
+                          content_types=ContentType.PHOTO
+                          ),
+                Back(Const("🔙 Назад"), id="back_another_photo"),
+                Button(Const("⏩ Далее"), id="skip_works_photo", on_click=skip_photo_works),
+                state=CheckinDialog.photo_works_another,
+                getter=getter_another_works_photo
 )
 
 
@@ -205,7 +254,6 @@ async def getter_confirm(dialog_manager: DialogManager, **kwargs):
     dialog_manager.dialog_data['phone'] = user.phone
     dialog_manager.dialog_data['telegram'] = user.telegram
 
-
     return {
         "name": user_data.get('name', '-')
         # "phone": user_data['phone']
@@ -217,6 +265,7 @@ async def getter_confirm(dialog_manager: DialogManager, **kwargs):
     }
 
 window_confirm = Window(
+    #TODO: Collage images
     Format("Осталось подтвердить заявку"),
     Format("Подтверждая заявку, вы даете соглашаетесь с условиями использования сервиса"),
     #TODO Link to Site Politics
