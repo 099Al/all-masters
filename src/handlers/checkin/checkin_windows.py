@@ -39,8 +39,7 @@ logger = logging.getLogger(__name__)
 async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     #await dialog_manager.switch_to(CheckinDialog.request_phone)
     #телефон уже есть в таблице Users
-    #await dialog_manager.switch_to(CheckinDialog.name)
-    await dialog_manager.switch_to(CheckinDialog.photo)
+    await dialog_manager.switch_to(CheckinDialog.name)
 
 async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     await dialog_manager.done()
@@ -128,10 +127,6 @@ window_email = Window(
                 Next(Const("⏩ Пропустить"), id="skip"),
                 state=CheckinDialog.email,
 )
-
-
-
-
 
 
 
