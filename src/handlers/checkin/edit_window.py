@@ -214,7 +214,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     user_id = dialog_manager.start_data['user_id']
     img_telegram_id = dialog_manager.dialog_data.get('photo')
-    local_path = f"{settings.NEW_IMAGES}/{user_id}.jpg"
+    local_path = f"{settings.IMAGES}/new_avatars/{user_id}.jpg"
     bot = callback.from_user.bot
     if img_telegram_id:
         await bot.download(img_telegram_id, destination=f"{settings.path_root}/{local_path}")

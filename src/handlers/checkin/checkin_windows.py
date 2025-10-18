@@ -296,6 +296,7 @@ async def getter_confirm(dialog_manager: DialogManager, **kwargs):
             f.write(buff_collage.getvalue())
 
         photo_collage = MediaAttachment(ContentType.PHOTO, path=path_to_collage)
+        dialog_manager.dialog_data['collage_path'] = path_to_collage
 
     else:
         file = await bot.get_file(spec_photo)
@@ -335,12 +336,13 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
     try:
         user_id = event_from_user.id
         img_telegram_id = dialog_manager.dialog_data.get('photo')
-        local_path = f"{settings.IMAGES}/{user_id}.jpg"
+        face_local_path = f"{settings.AVATAR_IMG}"
+        face_local_name = f"{user_id}.jpg"
 
         if img_telegram_id:
-            await bot.download(img_telegram_id, destination=f"{settings.path_root}/{local_path}")
+            await bot.download(img_telegram_id, destination=f"{settings.path_root}/{face_local_path}/{face_local_name}")
         else:
-            local_path = None
+            face_local_path = None
 
         specialist_moderate = ModerateData(
             id=user_id,
@@ -352,7 +354,8 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             services=dialog_manager.dialog_data.get('services'),
             about=dialog_manager.dialog_data.get('about'),
             photo_telegram=img_telegram_id,
-            photo_location=local_path,
+            photo_location=face_local_path,
+            photo_name=face_local_name,
             updated_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
         )
 
@@ -366,7 +369,8 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             services=dialog_manager.dialog_data.get('services', 'empty'),
             about=dialog_manager.dialog_data.get('about', 'empty'),
             photo_telegram=img_telegram_id,
-            photo_location=local_path,
+            photo_location=face_local_path,
+            photo_name=face_local_name,
             created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
         )
 
@@ -380,17 +384,39 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
         if d_works_photo:
             photo_values = list(d_works_photo.values())
 
-        for k, pid in enumerate(photo_values):
-            specialist_work_photos = SpecialistPhoto(
+            specialist_work_photos = [
+                SpecialistPhoto(
+                    specialist_id=user_id,
+                    photo_location=f"{settings.WORKS_IMG}",
+                    photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
+                    photo_telegram_id=pid,
+                    photo_type=SpecialistPhotoType.WORKS,
+                    created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+                )
+               for k, pid in enumerate(photo_values)
+            ]
+            await req.save_profile_data(specialist_work_photos)
+
+            for k, pid in enumerate(photo_values):
+                file = await bot.get_file(pid)
+                file_bytes = await bot.download_file(file.file_path)
+                with open(f"{settings.path_root}/{settings.WORKS_IMG}/{user_id}_{str(k)}_{digit_hash(pid)}.jpg", "wb") as f:
+                    f.write(file_bytes.getbuffer())
+
+
+
+        path_to_collage = dialog_manager.dialog_data.get('collage_path')
+        if path_to_collage:
+            photo_collage = SpecialistPhoto(
                 specialist_id=user_id,
-                photo_location=local_path,
-                photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
-                photo_telegram_id=pid,
-                photo_type=SpecialistPhotoType.WORKS,
+                photo_location=f"{settings.COLLAGE_IMG}",
+                photo_name=f"{user_id}_collage.jpg",
+                photo_telegram_id=None,
+                photo_type=SpecialistPhotoType.COLLAGE,
                 created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
             )
+            await req.save_profile_data(photo_collage)
 
-            await req.save_profile_data(specialist_work_photos)
 
 
     except Exception as e:
