@@ -28,7 +28,11 @@ class Settings(BaseSettings):
     def connect_url(self):
         return f'{self.ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
 
-    IMAGES: str = 'src/images'
-    NEW_IMAGES: str = 'src/new_images'
+    IMAGES: str = 'images'
+    NEW_IMAGES: str = 'new_images'
+    WORKS_IMG: str = 'images/works'
+    AVATAR_IMG: str = 'images/avatars'
+    NEW_AVATAR_IMG: str = 'images/new_avatars'
+    COLLAGE_IMG: str = 'images/collages'
 
 settings = Settings()

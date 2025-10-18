@@ -17,6 +17,8 @@ class CheckinDialog(StatesGroup):
     services = State()
     about = State()
     photo = State()
+    photo_works = State()
+    photo_works_another = State()
     confirm = State()
     answer = State()
 

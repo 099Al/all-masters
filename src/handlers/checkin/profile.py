@@ -10,7 +10,8 @@ from src.handlers.checkin.edit_window import (window_edit_name,  # window_edit_p
 from src.handlers.checkin.info_window import window_info
 from src.handlers.checkin.checkin_windows import (
     window_checkin_start, window_name, window_email,
-    window_services, window_about, window_photo, window_confirm, window_answer
+    window_services, window_about, window_photo, window_confirm, window_answer, window_add_works_photo,
+    window_add_another_works_photo
 )
 
 dialog_checkin_user = Dialog(
@@ -31,6 +32,8 @@ window_info,
     window_services,
     window_about,
     window_photo,
+    window_add_works_photo,
+    window_add_another_works_photo,
     window_confirm,
     window_answer
 )
