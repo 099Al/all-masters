@@ -94,9 +94,13 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         data_info["available_change"] = False
     elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.REJECTED:
         data_info["info"] = f"Новые изменения отклонены.\nПричина:{message_to_user}"
+    elif status == UserStatus.ACTIVE and moderate_result == None:
+        data_info["info"] = f"Ваша анкета одобрена."
     elif status == UserStatus.BANNED:
         data_info["info"] = f"Ваша анкета заблокирована.\nПричина:{message_to_user}"
         data_info["available_change"] = False
+    else:
+        data_info["info"] = ""
 
     photo_telegram = data.get("photo_telegram")  #photo обновилось после update_data
     if photo_telegram:
