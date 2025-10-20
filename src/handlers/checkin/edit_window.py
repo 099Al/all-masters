@@ -357,7 +357,6 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
 
 
-
     log_moderate = ModerateLog(
         user_id=user_id,
         updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None)
