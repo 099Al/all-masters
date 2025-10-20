@@ -114,6 +114,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
 
 
 
+
 async def update_info(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, **kwargs):
     user_data = dialog_manager.start_data
     await dialog_manager.start(EditDialog.name, data=user_data)
