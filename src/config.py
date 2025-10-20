@@ -29,10 +29,13 @@ class Settings(BaseSettings):
         return f'{self.ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
 
     IMAGES: str = 'images'
-    NEW_IMAGES: str = 'new_images'
     WORKS_IMG: str = 'images/works'
     AVATAR_IMG: str = 'images/avatars'
-    NEW_AVATAR_IMG: str = 'images/new_avatars'
     COLLAGE_IMG: str = 'images/collages'
+
+    NEW_IMAGES: str = 'new_images'
+    NEW_AVATAR_IMG: str = 'images/new_avatars'
+    NEW_COLLAGE_IMG: str = 'images/new_collages'
+    NEW_WORKS_IMG: str = 'images/new_works'
 
 settings = Settings()

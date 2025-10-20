@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 from urllib import request
+from io import BytesIO
 
 from aiogram.fsm.context import FSMContext
 from aiogram import Dispatcher, Bot, F
@@ -12,14 +13,19 @@ from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
+from PIL import Image
+
 from src.config import settings
 from src.config_paramaters import UTC_PLUS_5
-from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog
+from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog, \
+    ModerateSpecialistPhoto, SpecialistPhotoType
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
-from aiogram.types import CallbackQuery
+
 
 from src.log_config import *
+from src.utils.utils import make_collage, digit_hash
+
 logger = logging.getLogger(__name__)
 
 
@@ -169,7 +175,7 @@ async def getter_edit_photo(dialog_manager: DialogManager, **kwargs):
 
 async def edit_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
-    await dialog_manager.switch_to(EditDialog.message_to_admin)
+    await dialog_manager.switch_to(EditDialog.edit_photo_works)
 
 window_edit_photo = Window(
     Format("Для изменения загрузите новое фото"),
@@ -182,6 +188,71 @@ window_edit_photo = Window(
     state=EditDialog.photo,
     getter=getter_edit_photo
 )
+
+
+
+
+
+async def getter_edit_photo_works(dialog_manager: DialogManager, **kwargs):
+    dialog_manager.dialog_data['photo_works'] = {}
+    return {}
+
+async def edit_photo_works(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    dialog_manager.dialog_data['photo_works'] = {1: message.photo[-1].file_id}
+
+    await dialog_manager.switch_to(EditDialog.edit_photo_works_another)
+
+async def skip_edit_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(EditDialog.confirm)
+
+window_edit_works_photo = Window(
+                Format("Добавьте фото ваших работ\n(не более 5)"),
+                MessageInput(id="input_edit_photo_works",
+                          func=edit_photo_works,
+                          content_types=ContentType.PHOTO
+                          ),
+                Back(Const("🔙 Назад"), id="back_photo"),
+                Button(Const("⏩ Пропустить"), id="skip_works_photo", on_click=skip_edit_photo_works),
+                state=EditDialog.edit_photo_works,
+                getter=getter_edit_photo_works
+)
+
+
+async def edit_another_photo_works(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    d_works_photo = dialog_manager.dialog_data.get('photo_works', {})
+    d_len = len(d_works_photo)
+    if d_len == 0:
+        dialog_manager.dialog_data['photo_works'] = {1: message.photo[-1].file_id}
+    else:
+        d_works_photo.update({d_len + 1: message.photo[-1].file_id})
+
+    if d_len + 1 >= 5:
+        await dialog_manager.switch_to(EditDialog.confirm)
+
+async def skip_edit_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(EditDialog.confirm)
+
+async def getter_another_works_photo(dialog_manager: DialogManager, **kwargs):
+    d_works_photo = dialog_manager.dialog_data.get('photo_works', {})
+    return {
+        "photo_works_cnt": 5 - len(d_works_photo)
+    }
+
+
+window_edit_another_works_photo = Window(
+                Format("Добавьте еще фото\n(осталось {photo_works_cnt}"),
+                MessageInput(id="input_another_photo_works",
+                          func=edit_another_photo_works,
+                          content_types=ContentType.PHOTO
+                          ),
+                Back(Const("🔙 Назад"), id="back_another_photo"),
+                Button(Const("⏩ Далее"), id="skip_works_photo", on_click=skip_edit_photo_works),
+                state=EditDialog.edit_photo_works_another,
+                getter=getter_another_works_photo
+)
+
+
+
 
 
 async def message_to_admin(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
@@ -243,6 +314,50 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
     req = ReqData()
     await req.merge_profile_data(specialist_moderate)
     await req.update_specialist(user_id, moderate_result=ModerateStatus.NEW_CHANGES)   #TODO: возможно нужно убрать. См. замечание в info_window
+
+    d_works_photo = dialog_manager.dialog_data.get('photo_works', None)
+    if d_works_photo:
+        photo_values = list(d_works_photo.values())
+
+        specialist_work_photos = [
+            ModerateSpecialistPhoto(
+                specialist_id=user_id,
+                photo_location=f"{settings.NEW_WORKS_IMG}",
+                photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
+                photo_telegram_id=pid,
+                photo_type=SpecialistPhotoType.WORKS,
+                created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+            )
+            for k, pid in enumerate(photo_values)
+        ]
+        await req.save_profile_data(specialist_work_photos)
+
+
+    photo_values = []
+    spec_photo = dialog_manager.dialog_data.get('photo', None)
+    if spec_photo:
+        photo_values = [spec_photo]
+
+    bot = dialog_manager.middleware_data['bot']
+    photo_collage = None
+
+
+    path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{callback.from_user.id}_works.jpg"
+    if d_works_photo:
+        pil_images = []
+        photo_values.extend(list(d_works_photo.values()))
+        for pid in photo_values:
+            file = await bot.get_file(pid)
+            file_bytes = await bot.download_file(file.file_path)
+            pil_images.append(Image.open(BytesIO(file_bytes.read())).convert("RGB"))
+        buff_collage = make_collage(pil_images)
+        buff_collage.seek(0)
+
+        with open(path_to_collage, "wb") as f:
+            f.write(buff_collage.getvalue())
+
+
+
 
     log_moderate = ModerateLog(
         user_id=user_id,

@@ -5,7 +5,8 @@ from src.handlers.checkin.checkin_user_window import window_user_checkin_start, 
 from src.handlers.checkin.edit_window import (window_edit_name,  # window_edit_phone,
                                               window_edit_email, window_edit_services, window_edit_about,
                                               window_edit_photo, window_edit_confirm, window_edit_phone,
-                                              window_message_to_admin
+                                              window_message_to_admin, window_edit_works_photo,
+                                              window_edit_another_works_photo
                                               )
 from src.handlers.checkin.info_window import window_info
 from src.handlers.checkin.checkin_windows import (
@@ -46,6 +47,8 @@ window_edit_name,
     window_edit_services,
     window_edit_about,
     window_edit_photo,
+    window_edit_works_photo,
+    window_edit_another_works_photo,
     window_message_to_admin,
     window_edit_confirm
 )
