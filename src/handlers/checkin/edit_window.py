@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+from io import BytesIO
 from urllib import request
 
 from aiogram.fsm.context import FSMContext
