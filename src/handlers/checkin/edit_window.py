@@ -1,7 +1,6 @@
 from datetime import datetime
 import re
 from urllib import request
-from io import BytesIO
 
 from aiogram.fsm.context import FSMContext
 from aiogram import Dispatcher, Bot, F
@@ -175,7 +174,7 @@ async def getter_edit_photo(dialog_manager: DialogManager, **kwargs):
 
 async def edit_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
-    await dialog_manager.switch_to(EditDialog.edit_photo_works)
+    await dialog_manager.switch_to(EditDialog.message_to_admin)
 
 window_edit_photo = Window(
     Format("Для изменения загрузите новое фото"),
@@ -285,7 +284,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     user_id = dialog_manager.start_data['user_id']
     img_telegram_id = dialog_manager.dialog_data.get('photo')
-    local_path = f"{settings.IMAGES}/new_avatars/{user_id}.jpg"
+    local_path = f"{settings.NEW_AVATAR_IMG}/{user_id}.jpg"
     bot = callback.from_user.bot
     if img_telegram_id:
         await bot.download(img_telegram_id, destination=f"{settings.path_root}/{local_path}")
@@ -340,7 +339,6 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     bot = dialog_manager.middleware_data['bot']
     photo_collage = None
-
 
 
     path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{callback.from_user.id}_works.jpg"
