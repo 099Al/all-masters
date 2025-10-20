@@ -342,6 +342,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
     photo_collage = None
 
 
+
     path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{callback.from_user.id}_works.jpg"
     if d_works_photo:
         pil_images = []
