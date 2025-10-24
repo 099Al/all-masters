@@ -23,7 +23,7 @@ from src.config import settings
 from src.config_paramaters import UTC_PLUS_5
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus, SpecialistPhoto, \
-    SpecialistPhotoType
+    SpecialistPhotoType, ModerateSpecialistPhoto
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 async def checkin(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     #await dialog_manager.switch_to(CheckinDialog.request_phone)
     #телефон уже есть в таблице Users
-    await dialog_manager.switch_to(CheckinDialog.photo)
+    await dialog_manager.switch_to(CheckinDialog.name)
 
 async def back_to_start(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     await dialog_manager.done()
@@ -280,7 +280,7 @@ async def getter_confirm(dialog_manager: DialogManager, **kwargs):
     bot = dialog_manager.middleware_data['bot']
     photo_collage = None
 
-    path_to_collage = f"{settings.path_root}/images/collages/{kwargs['event_from_user'].id}_works.jpg"
+    path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{kwargs['event_from_user'].id}_works.jpg"
     if d_works_photo:
         pil_images = []
         photo_values.extend(list(d_works_photo.values()))
@@ -335,7 +335,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
     try:
         user_id = event_from_user.id
         img_telegram_id = dialog_manager.dialog_data.get('photo')
-        face_local_path = f"{settings.AVATAR_IMG}"
+        face_local_path = f"{settings.NEW_AVATAR_IMG}"
         face_local_name = f"{user_id}.jpg"
 
         if img_telegram_id:
@@ -384,9 +384,9 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             photo_values = list(d_works_photo.values())
 
             specialist_work_photos = [
-                SpecialistPhoto(
+                ModerateSpecialistPhoto(
                     specialist_id=user_id,
-                    photo_location=f"{settings.WORKS_IMG}",
+                    photo_location=f"{settings.NEW_WORKS_IMG}",
                     photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
                     photo_telegram_id=pid,
                     photo_type=SpecialistPhotoType.WORKS,
@@ -399,16 +399,16 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             for k, pid in enumerate(photo_values):
                 file = await bot.get_file(pid)
                 file_bytes = await bot.download_file(file.file_path)
-                with open(f"{settings.path_root}/{settings.WORKS_IMG}/{user_id}_{str(k)}_{digit_hash(pid)}.jpg", "wb") as f:
+                with open(f"{settings.path_root}/{settings.NEW_WORKS_IMG}/{user_id}_{str(k)}_{digit_hash(pid)}.jpg", "wb") as f:
                     f.write(file_bytes.getbuffer())
 
 
 
         path_to_collage = dialog_manager.dialog_data.get('collage_path')
         if path_to_collage:
-            photo_collage = SpecialistPhoto(
+            photo_collage = ModerateSpecialistPhoto(
                 specialist_id=user_id,
-                photo_location=f"{settings.COLLAGE_IMG}",
+                photo_location=f"{settings.NEW_COLLAGE_IMG}",
                 photo_name=f"{user_id}_collage.jpg",
                 photo_telegram_id=None,
                 photo_type=SpecialistPhotoType.COLLAGE,
