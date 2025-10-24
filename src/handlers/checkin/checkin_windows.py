@@ -280,7 +280,7 @@ async def getter_confirm(dialog_manager: DialogManager, **kwargs):
     bot = dialog_manager.middleware_data['bot']
     photo_collage = None
 
-    path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{kwargs['event_from_user'].id}_works.jpg"
+    path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{kwargs['event_from_user'].id}_collage.jpg"
     if d_works_photo:
         pil_images = []
         photo_values.extend(list(d_works_photo.values()))
