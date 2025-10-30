@@ -134,7 +134,6 @@ window_info = Window(
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
                 getter=getter_info,
                 state=CheckinDialog.info_message,
-
 )
 
 

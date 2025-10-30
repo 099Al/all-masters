@@ -339,7 +339,6 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
                 os.remove(ph_path)
 
 
-
         photo_values = list(d_works_photo.values())
 
         specialist_work_photos = [
@@ -355,7 +354,18 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         ]
         await req.save_profile_data(specialist_work_photos)
 
+        for k, pid in enumerate(photo_values):
+            location_work_photo = f"{settings.NEW_WORKS_IMG}"
+            name_work_photo = f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg"
+            await bot.download(pid, destination=f"{settings.path_root}/{location_work_photo}/{name_work_photo}")
 
+
+    # else:
+    #     old_work_photos = await req.get_moderate_photos(user_id, SpecialistPhotoType.WORKS)
+    #     if old_work_photos:
+    #         d_works_photo = old_work_photos
+    #     else:
+    #         d_works_photo = await req.get_specialist_photos(user_id, SpecialistPhotoType.WORKS)
 
 
     bot = dialog_manager.middleware_data['bot']
