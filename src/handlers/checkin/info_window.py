@@ -10,6 +10,7 @@ from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
 from sqlalchemy.future import select
 
+from src.config import settings
 from src.config_paramaters import EDIT_REQUEST_LIMIT
 from src.database.connect import DataBase
 from src.database.models import UserStatus, Specialist, ModerateStatus
@@ -94,19 +95,29 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
         data_info["available_change"] = False
     elif status == UserStatus.ACTIVE and moderate_result == ModerateStatus.REJECTED:
         data_info["info"] = f"Новые изменения отклонены.\nПричина:{message_to_user}"
+    elif status == UserStatus.ACTIVE and moderate_result == None:
+        data_info["info"] = f"Ваша анкета одобрена."
     elif status == UserStatus.BANNED:
         data_info["info"] = f"Ваша анкета заблокирована.\nПричина:{message_to_user}"
         data_info["available_change"] = False
+    else:
+        data_info["info"] = ""
 
-    photo_telegram = data.get("photo_telegram")  #photo обновилось после update_data
-    if photo_telegram:
+    collage_location = data.get("collage_location")  #photo обновилось после update_data
+    collage_name = data.get("collage_name")
+    if collage_location and collage_location:
+        #image = MediaAttachment(ContentType.PHOTO, file_id=MediaId(photo_telegram))
+        image = MediaAttachment(ContentType.PHOTO, path=f"{settings.path_root}/{collage_location}/{collage_name}")
+    else:
+        photo_telegram = data.get("photo_telegram")
         image = MediaAttachment(ContentType.PHOTO, file_id=MediaId(photo_telegram))
-        #image = MediaAttachment(ContentType.PHOTO, path=r'full_path\src\images\ .jpg')
-        data_info["photo"] = image
+    data_info["photo"] = image
+
 
     data_info["profile_info"] = f"Имя: {data['name']}\nТелефон: {data['phone']}\nTelegram: {data['telegram']}\nEmail: {data['email']}\nУслуги: {data['services']}\nО себе: {data['about']}"
 
     return data_info
+
 
 
 
@@ -123,7 +134,6 @@ window_info = Window(
                 Button(Const("Назад"), id="back_start", on_click=back_to_start),
                 getter=getter_info,
                 state=CheckinDialog.info_message,
-
 )
 
 

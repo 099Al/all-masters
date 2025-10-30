@@ -29,6 +29,8 @@ class EditDialog(StatesGroup):
     services = State()
     about = State()
     photo = State()
+    edit_photo_works = State()
+    edit_photo_works_another = State()
     message_to_admin = State()
     confirm = State()
     answer = State()

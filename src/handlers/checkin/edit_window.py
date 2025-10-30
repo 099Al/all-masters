@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+from io import BytesIO
 from urllib import request
 
 from aiogram.fsm.context import FSMContext
@@ -12,14 +13,19 @@ from aiogram_dialog.widgets.text import Format, Const, List
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
+from PIL import Image
+
 from src.config import settings
 from src.config_paramaters import UTC_PLUS_5
-from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog
+from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog, \
+    ModerateSpecialistPhoto, SpecialistPhotoType
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
-from aiogram.types import CallbackQuery
+
 
 from src.log_config import *
+from src.utils.utils import make_collage, digit_hash
+
 logger = logging.getLogger(__name__)
 
 
@@ -169,7 +175,7 @@ async def getter_edit_photo(dialog_manager: DialogManager, **kwargs):
 
 async def edit_photo(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     dialog_manager.dialog_data['photo'] = message.photo[-1].file_id
-    await dialog_manager.switch_to(EditDialog.message_to_admin)
+    await dialog_manager.switch_to(EditDialog.edit_photo_works)
 
 window_edit_photo = Window(
     Format("Для изменения загрузите новое фото"),
@@ -182,6 +188,71 @@ window_edit_photo = Window(
     state=EditDialog.photo,
     getter=getter_edit_photo
 )
+
+
+
+
+
+async def getter_edit_photo_works(dialog_manager: DialogManager, **kwargs):
+    dialog_manager.dialog_data['photo_works'] = {}
+    return {}
+
+async def edit_photo_works(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    dialog_manager.dialog_data['photo_works'] = {1: message.photo[-1].file_id}
+
+    await dialog_manager.switch_to(EditDialog.edit_photo_works_another)
+
+async def skip_edit_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(EditDialog.confirm)
+
+window_edit_works_photo = Window(
+                Format("Добавьте фото ваших работ\n(не более 5)"),
+                MessageInput(id="input_edit_photo_works",
+                          func=edit_photo_works,
+                          content_types=ContentType.PHOTO
+                          ),
+                Back(Const("🔙 Назад"), id="back_photo"),
+                Button(Const("⏩ Пропустить"), id="skip_works_photo", on_click=skip_edit_photo_works),
+                state=EditDialog.edit_photo_works,
+                getter=getter_edit_photo_works
+)
+
+
+async def edit_another_photo_works(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    d_works_photo = dialog_manager.dialog_data.get('photo_works', {})
+    d_len = len(d_works_photo)
+    if d_len == 0:
+        dialog_manager.dialog_data['photo_works'] = {1: message.photo[-1].file_id}
+    else:
+        d_works_photo.update({d_len + 1: message.photo[-1].file_id})
+
+    if d_len + 1 >= 5:
+        await dialog_manager.switch_to(EditDialog.confirm)
+
+async def skip_edit_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
+    await dialog_manager.switch_to(EditDialog.confirm)
+
+async def getter_another_works_photo(dialog_manager: DialogManager, **kwargs):
+    d_works_photo = dialog_manager.dialog_data.get('photo_works', {})
+    return {
+        "photo_works_cnt": 5 - len(d_works_photo)
+    }
+
+
+window_edit_another_works_photo = Window(
+                Format("Добавьте еще фото\n(осталось {photo_works_cnt}"),
+                MessageInput(id="input_another_photo_works",
+                          func=edit_another_photo_works,
+                          content_types=ContentType.PHOTO
+                          ),
+                Back(Const("🔙 Назад"), id="back_another_photo"),
+                Button(Const("⏩ Далее"), id="skip_works_photo", on_click=skip_edit_photo_works),
+                state=EditDialog.edit_photo_works_another,
+                getter=getter_another_works_photo
+)
+
+
+
 
 
 async def message_to_admin(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager, text: str):
@@ -214,10 +285,14 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     user_id = dialog_manager.start_data['user_id']
     img_telegram_id = dialog_manager.dialog_data.get('photo')
-    local_path = f"{settings.IMAGES}/new_avatars/{user_id}.jpg"
+    location_path = None
+    name_photo = None
+
     bot = callback.from_user.bot
     if img_telegram_id:
-        await bot.download(img_telegram_id, destination=f"{settings.path_root}/{local_path}")
+        location_path = f"{settings.NEW_AVATAR_IMG}"
+        name_photo = f"{user_id}.jpg"
+        await bot.download(img_telegram_id, destination=f"{settings.path_root}/{location_path}/{name_photo}")
     else:
         local_path = None
 
@@ -225,6 +300,9 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     #TODO: update Specialist moderate_result to NEW_CHANGES
     #start_data - это информация из Specialist и MooderateData (информация в ModerateData в приоритете)
+
+    #TODO:delete old files
+
     specialist_moderate = ModerateData(
         id=user_id,
         status=ModerateStatus.NEW_CHANGES,
@@ -235,7 +313,8 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         services=dialog_manager.dialog_data.get('services', dialog_manager.start_data['services']),
         about=dialog_manager.dialog_data.get('about', dialog_manager.start_data['about']),
         photo_telegram=img_telegram_id or dialog_manager.start_data['photo_telegram'],
-        photo_location=local_path or dialog_manager.start_data['photo_location'],
+        photo_location=location_path or dialog_manager.start_data['photo_location'],
+        photo_name=name_photo or dialog_manager.start_data['photo_name'],
         updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None),
         message_to_admin=dialog_manager.dialog_data.get('message_to_admin')
     )
@@ -243,6 +322,100 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
     req = ReqData()
     await req.merge_profile_data(specialist_moderate)
     await req.update_specialist(user_id, moderate_result=ModerateStatus.NEW_CHANGES)   #TODO: возможно нужно убрать. См. замечание в info_window
+
+    d_works_photo = dialog_manager.dialog_data.get('photo_works', None)
+    if d_works_photo:
+
+        old_work_photos = await req.get_moderate_photos(user_id, SpecialistPhotoType.WORKS)
+
+        if old_work_photos:
+            await req.delete_moderate_work_photo(user_id, SpecialistPhotoType.WORKS)
+
+        for ph in old_work_photos:
+            ph_location = ph.photo_location
+            ph_name = ph.photo_name
+            ph_path = f"{settings.path_root}/{ph_location}/{ph_name}"
+            if os.path.exists(ph_path):
+                os.remove(ph_path)
+
+
+        photo_values = list(d_works_photo.values())
+
+        specialist_work_photos = [
+            ModerateSpecialistPhoto(
+                specialist_id=user_id,
+                photo_location=f"{settings.NEW_WORKS_IMG}",
+                photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
+                photo_telegram_id=pid,
+                photo_type=SpecialistPhotoType.WORKS,
+                created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+            )
+            for k, pid in enumerate(photo_values)
+        ]
+        await req.save_profile_data(specialist_work_photos)
+
+        for k, pid in enumerate(photo_values):
+            location_work_photo = f"{settings.NEW_WORKS_IMG}"
+            name_work_photo = f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg"
+            await bot.download(pid, destination=f"{settings.path_root}/{location_work_photo}/{name_work_photo}")
+
+
+    # else:
+    #     old_work_photos = await req.get_moderate_photos(user_id, SpecialistPhotoType.WORKS)
+    #     if old_work_photos:
+    #         d_works_photo = old_work_photos
+    #     else:
+    #         d_works_photo = await req.get_specialist_photos(user_id, SpecialistPhotoType.WORKS)
+
+
+    bot = dialog_manager.middleware_data['bot']
+    photo_collage = None
+
+
+    path_to_collage = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{callback.from_user.id}_collage.jpg"
+
+    if os.path.exists(path_to_collage):
+        os.remove(path_to_collage)
+
+    photo_location = location_path or dialog_manager.start_data['photo_location']  #new or old
+    photo_name = name_photo or dialog_manager.start_data['photo_name']
+    photo_path = f"{settings.path_root}/{photo_location}/{photo_name}"
+
+    pil_images = []
+    if os.path.exists(photo_path):
+        pil_images.append(Image.open(photo_path).convert("RGB"))  #new or old photo
+
+    if d_works_photo:
+        #new photos
+        for pid in list(d_works_photo.values()):
+            file = await bot.get_file(pid)
+            file_bytes = await bot.download_file(file.file_path)
+            pil_images.append(Image.open(BytesIO(file_bytes.read())).convert("RGB"))
+    else:
+        if img_telegram_id:
+            moderate_works_photos = await req.get_moderate_photos(user_id, SpecialistPhotoType.WORKS)
+            if moderate_works_photos:
+                for ph in moderate_works_photos:
+                    file_path = f"{settings.path_root}/{ph.photo_location}/{ph.photo_name}"
+                    if os.path.exists(file_path):
+                        pil_images.append(Image.open(file_path).convert("RGB"))
+            else:
+                works_photos = await req.get_specialist_photos(user_id, SpecialistPhotoType.WORKS)
+                if works_photos:
+                    for ph in works_photos:
+                        file_path = f"{settings.path_root}/{ph.photo_location}/{ph.photo_name}"
+                        if os.path.exists(file_path):
+                            pil_images.append(Image.open(file_path).convert("RGB"))
+
+
+    if pil_images:
+        buff_collage = make_collage(pil_images)
+        buff_collage.seek(0)
+
+        with open(path_to_collage, "wb") as f:
+            f.write(buff_collage.getvalue())
+
+
 
     log_moderate = ModerateLog(
         user_id=user_id,
