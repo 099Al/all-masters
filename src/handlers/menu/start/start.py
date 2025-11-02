@@ -58,9 +58,10 @@ async def specialist_registration(callback: CallbackQuery, button: Button, dialo
             try:
                 photo_data_list = await req.get_moderate_photos(user_id, SpecialistPhotoType.COLLAGE)
                 photo_data = photo_data_list[0]
-                collage_location = photo_data.photo_location
-                collage_name = photo_data.photo_name
-                collage_path = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{user_id}_collage.jpg"
+                collage_location = photo_data[0]
+                collage_name = photo_data[1]
+                collage_path = f"{settings.path_root}/{collage_location}/{collage_name}"
+                #collage_path = f"{settings.path_root}/{settings.NEW_COLLAGE_IMG}/{user_id}_collage.jpg"
 
                 if not os.path.exists(collage_path):
                     collage_location = res.photo_location
@@ -70,6 +71,17 @@ async def specialist_registration(callback: CallbackQuery, button: Button, dialo
                 logger.error(f"Error in start No collage. bot_id: {callback.bot.id}. {e}")
                 collage_location = res.photo_location
                 collage_name = res.photo_name
+
+        elif res.status == UserStatus.ACTIVE:
+            photo_data_list = await req.get_specialist_photos(user_id, SpecialistPhotoType.COLLAGE)
+            photo_data = photo_data_list[0]
+            collage_location = photo_data[0]
+            collage_name = photo_data[1]
+            collage_path = f"{settings.path_root}/{collage_location}/{collage_name}"
+            if not os.path.exists(collage_path):
+                collage_location = res.photo_location
+                collage_name = res.photo_name
+
         else:
             collage_location = res.photo_location
             collage_name = res.photo_name
