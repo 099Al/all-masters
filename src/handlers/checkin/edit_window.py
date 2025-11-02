@@ -203,7 +203,7 @@ async def edit_photo_works(message: Message, widget: MessageInput, dialog_manage
     await dialog_manager.switch_to(EditDialog.edit_photo_works_another)
 
 async def skip_edit_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.switch_to(EditDialog.confirm)
+    await dialog_manager.switch_to(EditDialog.message_to_admin)
 
 window_edit_works_photo = Window(
                 Format("Добавьте фото ваших работ\n(не более 5)"),
@@ -227,10 +227,10 @@ async def edit_another_photo_works(message: Message, widget: MessageInput, dialo
         d_works_photo.update({d_len + 1: message.photo[-1].file_id})
 
     if d_len + 1 >= 5:
-        await dialog_manager.switch_to(EditDialog.confirm)
+        await dialog_manager.switch_to(EditDialog.message_to_admin)
 
 async def skip_edit_photo_works(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.switch_to(EditDialog.confirm)
+    await dialog_manager.switch_to(EditDialog.message_to_admin)
 
 async def getter_another_works_photo(dialog_manager: DialogManager, **kwargs):
     d_works_photo = dialog_manager.dialog_data.get('photo_works', {})
@@ -301,7 +301,6 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
     #TODO: update Specialist moderate_result to NEW_CHANGES
     #start_data - это информация из Specialist и MooderateData (информация в ModerateData в приоритете)
 
-    #TODO:delete old files
 
     specialist_moderate = ModerateData(
         id=user_id,
