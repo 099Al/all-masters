@@ -142,6 +142,7 @@ dependencies = [
     { name = "pillow" },
     { name = "pydantic-settings" },
     { name = "pydentic" },
+    { name = "redis" },
     { name = "requests" },
     { name = "sqlalchemy" },
 ]
@@ -156,6 +157,7 @@ requires-dist = [
     { name = "pillow", specifier = ">=11.3.0" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "pydentic", specifier = ">=0.0.1.dev3" },
+    { name = "redis", specifier = ">=7.0.1" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
 ]
@@ -856,6 +858,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/83/60/fd8299c7d8990a7d802286ac604862387bcac3df08be7cb1c932c33ef7da/python_stdnum-2.1.tar.gz", hash = "sha256:6b01645969eb3dfd55061a0114d593753cd9e653cea9083198b7eea12644397a", size = 1238596, upload-time = "2025-05-17T13:18:43.506Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/67/04/730f619b5b8470adf0e029ee2f0a060689145ea64dec001c8bac3c3959e2/python_stdnum-2.1-py3-none-any.whl", hash = "sha256:25eabcf5f307dd4150fd8f1c03f4512a6caeb84c9f09be1448711f5803373c58", size = 1120175, upload-time = "2025-05-17T13:18:41.193Z" },
+]
+
+[[package]]
+name = "redis"
+version = "7.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/57/8f/f125feec0b958e8d22c8f0b492b30b1991d9499a4315dfde466cf4289edc/redis-7.0.1.tar.gz", hash = "sha256:c949df947dca995dc68fdf5a7863950bf6df24f8d6022394585acc98e81624f1", size = 4755322, upload-time = "2025-10-27T14:34:00.33Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e9/97/9f22a33c475cda519f20aba6babb340fb2f2254a02fb947816960d1e669a/redis-7.0.1-py3-none-any.whl", hash = "sha256:4977af3c7d67f8f0eb8b6fec0dafc9605db9343142f634041fb0235f67c0588a", size = 339938, upload-time = "2025-10-27T14:33:58.553Z" },
 ]
 
 [[package]]
