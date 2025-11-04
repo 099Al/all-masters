@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from aiogram_dialog import setup_dialogs
 from aiogram import Dispatcher, Bot
@@ -13,16 +14,32 @@ from src.handlers.maintenance_middleware import MaintenanceMiddleware
 from src.handlers.menu.menu import set_menu
 from src.handlers.routers import add_routers
 
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
+from redis.asyncio import Redis
+from enum import Enum
+
 from src.log_config import *
 logger = logging.getLogger(__name__)
 
 
-
+def dumps_with_enum(obj):
+    def default(o):
+        if isinstance(o, Enum):
+            return o.value  # or o.name
+        # Last resort fallback (optional):
+        return str(o)
+    return json.dumps(obj, default=default)
 
 async def start():
 
     bot = Bot(token=settings.TOKEN_ID, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    dp = Dispatcher()
+
+    redis = Redis(host='localhost', port=6379, db=0)
+    storage = RedisStorage(redis=redis, key_builder=DefaultKeyBuilder(with_destiny=True), json_dumps=dumps_with_enum)
+
+
+
+    dp = Dispatcher(storage=storage)
 
     db = DataBase()
     await db.create_db()
