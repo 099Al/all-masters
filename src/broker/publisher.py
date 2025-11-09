@@ -1,36 +1,18 @@
-import asyncio
+from nats.js.client import JetStreamContext
 from datetime import datetime
 
-import nats
 
-
-async def main():
-    # Подключаемся к серверу NATS
-    nc = await nats.connect("nats://127.0.0.1:4222")
-
-    # Желаемая задержка в секундах
-    delay = 5
-
-    # Сообщение для отправки
-    message = 'Hello from Python-publisher!'
-
-    # Заголовки
+async def delay_message_deletion(
+    js: JetStreamContext,
+    chat_id: int,
+    message_id: int,
+    subject: str,
+    delay: int = 0
+) -> None:
     headers = {
+        'Tg-Delayed-Chat-ID': str(chat_id),
+        'Tg-Delayed-Msg-ID': str(message_id),
         'Tg-Delayed-Msg-Timestamp': str(datetime.now().timestamp()),
-        'Tg-Delayed-Msg-Delay': str(delay)
+        'Tg-Delayed-Msg-Delay': str(delay),
     }
-
-    # Сабджект, в который отправляется сообщение
-    subject = 'aiogram.delayed.messages'
-
-    # Публикуем сообщение на указанный сабджект
-    await nc.publish(subject, message.encode(encoding='utf-8'), headers=headers)
-
-    # Выводим в консоль информацию о том, что сообщение опубликовано
-    print(f"Message '{message}' with headers {headers} published in subject `{subject}`")
-
-    # Закрываем соединение
-    await nc.close()
-
-
-asyncio.run(main())
+    await js.publish(subject=subject, headers=headers)

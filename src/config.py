@@ -19,6 +19,12 @@ class Settings(BaseSettings):
 
     GPT_KEY: str
 
+    NATS_SERVERS: str
+
+    NATS_DELAYED_CONSUMER_SUBJECT: str
+    NATS_DELAYED_CONSUMER_STREAM: str
+    NATS_DELAYED_CONSUMER_DURABLE_NAME: str
+
     #instead load_dotenv()
     path_root: str = str(Path(__file__).resolve().parent.parent)
     path_env: str = str(Path(__file__).resolve().parent.parent / '.env')
@@ -27,6 +33,7 @@ class Settings(BaseSettings):
     @property
     def connect_url(self):
         return f'{self.ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
+
 
     IMAGES: str = 'images'
     WORKS_IMG: str = 'images/works'
@@ -37,5 +44,8 @@ class Settings(BaseSettings):
     NEW_AVATAR_IMG: str = 'images/new_avatars'
     NEW_COLLAGE_IMG: str = 'images/new_collages'
     NEW_WORKS_IMG: str = 'images/new_works'
+
+
+
 
 settings = Settings()
