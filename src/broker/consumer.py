@@ -33,7 +33,7 @@ class DelayedMessageConsumer:
         self.stream_sub = await self.js.subscribe(
             subject=self.subject,
             stream=self.stream,
-            cb=self.on_message,
+            cb=self.on_message,                #обработчик события
             durable=self.durable_name,
             manual_ack=True
         )
@@ -60,4 +60,24 @@ class DelayedMessageConsumer:
     async def unsubscribe(self) -> None:
         if self.stream_sub:
             await self.stream_sub.unsubscribe()
-            logger.info('Consumer unsubscribed')
+            logger.info('Consumer unsubscribed')\
+
+
+async def start_delayed_consumer(
+    nc: Client,
+    js: JetStreamContext,
+    bot: Bot,
+    subject: str,
+    stream: str,
+    durable_name: str
+) -> None:
+    consumer = DelayedMessageConsumer(
+        nc=nc,
+        js=js,
+        bot=bot,
+        subject=subject,
+        stream=stream,
+        durable_name=durable_name
+    )
+    logger.info('Start delayed message consumer')
+    await consumer.start()

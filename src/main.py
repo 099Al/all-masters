@@ -9,7 +9,7 @@ from aiogram.enums.parse_mode import ParseMode
 from config import settings
 from src.broker.locales.mw_i18n import TranslatorRunnerMiddleware
 from src.broker.nats_connect import connect_to_nats
-from src.broker.start_consumers import start_delayed_consumer
+from src.broker.consumer import start_delayed_consumer
 from src.broker.user import user_router
 from src.config_paramaters import ADMIN_IDS
 
@@ -91,7 +91,7 @@ async def start():
                 subject=settings.NATS_DELAYED_CONSUMER_SUBJECT,
                 stream=settings.NATS_DELAYED_CONSUMER_STREAM,
                 durable_name=settings.NATS_DELAYED_CONSUMER_DURABLE_NAME
-            )
+            )           #подписываемся на поток
         )
     except Exception as e:
         logger.exception(e)
