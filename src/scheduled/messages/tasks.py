@@ -92,7 +92,8 @@ async def broadcast_pending(bot: Bot = TaskiqDepends()) -> int:
         sem = asyncio.Semaphore(MAX_CONCURRENCY)
         async def _one(r):
             async with sem:
-                ok = await send_with_throttling(bot, r.specialist_id, r.message)
+                message_to_specialist = f"Вам сообщение от @{r.telegram}:\n\n{r.message}"
+                ok = await send_with_throttling(bot, r.specialist_id, message_to_specialist)
                 if ok:
                     delivered_ids.append(r.id)
 
