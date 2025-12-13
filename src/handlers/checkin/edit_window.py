@@ -1,15 +1,12 @@
 from datetime import datetime
 import re
 from io import BytesIO
-from urllib import request
 
-from aiogram.fsm.context import FSMContext
-from aiogram import Dispatcher, Bot, F
 from aiogram.types import ContentType
-from aiogram.types import CallbackQuery, Message, User
-from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next, Cancel, RequestContact
-from aiogram_dialog.widgets.text import Format, Const, List
+from aiogram.types import CallbackQuery, Message
+from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.widgets.kbd import Button, Back, Next, Cancel, RequestContact
+from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 

@@ -9,7 +9,7 @@ from aiogram.enums.parse_mode import ParseMode
 from src.config import settings
 from src.config_paramaters import ADMIN_IDS
 
-from src.database.connect import DataBase
+from scripts.functions import DataBase
 from src.handlers.maintenance_middleware import MaintenanceMiddleware
 from src.handlers.menu.menu import set_menu
 from src.handlers.routers import add_routers
@@ -17,10 +17,6 @@ from src.handlers.routers import add_routers
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from redis.asyncio import Redis
 from enum import Enum
-from taskiq_redis import ListQueueBroker
-from taskiq import TaskiqScheduler
-from taskiq.schedule_sources import LabelScheduleSource
-import taskiq_aiogram
 
 from src.log_config import *
 from src.scheduled.messages.db import init_pool

@@ -20,3 +20,6 @@ scheduler = TaskiqScheduler(
     broker=broker,
     sources=[LabelScheduleSource(broker)],
 )
+
+
+import src.scheduled.messages.tasks

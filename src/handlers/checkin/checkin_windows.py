@@ -1,15 +1,12 @@
 from datetime import datetime
 import re
 from io import BytesIO
-from urllib import request
 
-from aiogram.fsm.context import FSMContext
-from aiogram import Dispatcher, Bot
 from aiogram.types import ContentType
-from aiogram.types import CallbackQuery, Message, User
-from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Back, Next
-from aiogram_dialog.widgets.text import Format, Const, List
+from aiogram.types import Message, User
+from aiogram_dialog import DialogManager, Window
+from aiogram_dialog.widgets.kbd import Button, Back, Next
+from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.widgets.media import DynamicMedia
@@ -17,8 +14,6 @@ from aiogram import Bot, F
 
 from PIL import Image
 
-
-from src import config
 from src.config import settings
 from src.config_paramaters import UTC_PLUS_5
 from src.database.connect import DataBase
@@ -29,7 +24,6 @@ from src.handlers.checkin.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
 from src.log_config import *
-from aiogram_dialog.widgets.kbd import RequestContact
 
 from src.utils.utils import make_collage, digit_hash
 

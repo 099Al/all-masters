@@ -8,11 +8,8 @@ from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
-from sqlalchemy.future import select
-
 from src.config import settings
 from src.config_paramaters import EDIT_REQUEST_LIMIT
-from src.database.connect import DataBase
 from src.database.models import UserStatus, Specialist, ModerateStatus
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog

@@ -1,15 +1,13 @@
 import asyncio
-import datetime as dt
 import time
 from collections import defaultdict
-from typing import Sequence
 
-import asyncpg
 from aiogram import Bot
 from taskiq import TaskiqDepends
 
 from src.config_paramaters import BATCH_MESSAGE_LIMIT
 from src.database.requests_db import ReqData
+from src.database.scheduled_processes import ServiceManager
 from src.scheduled.messages.db import get_pool
 from src.scheduled.messages.tkq import broker
 from aiogram.exceptions import TelegramRetryAfter
@@ -107,3 +105,18 @@ async def broadcast_pending(bot: Bot = TaskiqDepends()) -> int:
         # цикл продолжится, пока батчи не закончатся
 
     return total_sent
+
+
+svc = ServiceManager()
+
+@broker.task(
+    task_name="update_statuses",
+    # run every 15 minutes (change as needed)
+    schedule=[{"cron": "*/15 * * * *", "cron_offset": "Asia/Almaty"}],
+)
+async def update_statuses() -> None:
+    """
+    Periodic task that runs ServiceManager.call_update_statuses()
+    every 15 minutes.
+    """
+    await svc.call_update_statuses()
