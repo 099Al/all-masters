@@ -37,7 +37,7 @@ class MaintenanceMiddleware(BaseMiddleware):
 
         if isinstance(event, Message):
             user_id = event.from_user.id if event.from_user else None
-            first_token = (event.text or "").split()[0]
+            first_token = (event.text or "")
         elif isinstance(event, CallbackQuery):
             user_id = event.from_user.id if event.from_user else None
             # Кнопкам обычно тоже ставим заглушку
