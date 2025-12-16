@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 
 from src.handlers.checkin.profile import dialog_checkin, dialog_edit, dialog_checkin_user
-from src.handlers.menu.commands import menu_router
+from src.handlers.menu.profile_handler import menu_router
 from src.handlers.menu.start.start import start_router, dialog_start
 from src.handlers.search.search import dialog_search
 

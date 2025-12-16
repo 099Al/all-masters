@@ -52,15 +52,19 @@ UPDATE SET
     updated_at = CURRENT_TIMESTAMP;
 
 
-delete from specialist_photos s
-where specialist_id in (
-    SELECT distinct mdp.specialist_id
-    FROM moderate_data m
-    JOIN moderate_specialist_photos mdp on mdp.specialist_id = m.id
-    WHERE status = 'APPROVED'
-    and applied_category = true
-);
-
+----Обновления Collage и Works-------
+----Works обновляются все фото. т.е. нельзя изменить только одно. надо перезалить все
+DELETE FROM specialist_photos s
+USING (
+  SELECT DISTINCT mdp.specialist_id, mdp.photo_type
+  FROM moderate_data m
+  JOIN moderate_specialist_photos mdp
+    ON mdp.specialist_id = m.id
+  WHERE m.status = 'APPROVED'
+    AND m.applied_category = TRUE
+) x
+WHERE s.specialist_id = x.specialist_id
+  AND s.photo_type     = x.photo_type;
 
 INSERT into specialist_photos(specialist_id, photo_telegram_id, photo_name, photo_location, photo_type, created_at)
  SELECT mdp.specialist_id, mdp.photo_telegram_id, mdp.photo_name, replace(mdp.photo_location, '/new_', '/'), mdp.photo_type, current_timestamp
@@ -68,7 +72,7 @@ INSERT into specialist_photos(specialist_id, photo_telegram_id, photo_name, phot
     JOIN moderate_specialist_photos mdp on mdp.specialist_id = m.id
     WHERE status = 'APPROVED'
     and applied_category = true;
-
+-------------------------------------------
 
 
 -- перенос отклоненных и заблокированных анкет, по которым были изменения

@@ -102,7 +102,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
 
     collage_location = data.get("collage_location")  #photo обновилось после update_data
     collage_name = data.get("collage_name")
-    if collage_location and collage_location:
+    if collage_location and collage_name:
         #image = MediaAttachment(ContentType.PHOTO, file_id=MediaId(photo_telegram))
         image = MediaAttachment(ContentType.PHOTO, path=f"{settings.path_root}/{collage_location}/{collage_name}")
     else:

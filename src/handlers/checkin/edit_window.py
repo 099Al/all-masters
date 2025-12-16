@@ -420,7 +420,8 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
             photo_telegram_id=None
         )
 
-        await req.save_profile_data(moderate_collage)
+        # await req.save_profile_data(moderate_collage)
+        await req.save_moderate_photo(moderate_collage)
 
     log_moderate = ModerateLog(
         user_id=user_id,

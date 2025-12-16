@@ -73,12 +73,16 @@ async def specialist_registration(callback: CallbackQuery, button: Button, dialo
                 collage_name = res.photo_name
 
         elif res.status == UserStatus.ACTIVE:
-            photo_data_list = await req.get_specialist_photos(user_id, SpecialistPhotoType.COLLAGE)
-            photo_data = photo_data_list[0]
-            collage_location = photo_data[0]
-            collage_name = photo_data[1]
-            collage_path = f"{settings.path_root}/{collage_location}/{collage_name}"
-            if not os.path.exists(collage_path):
+            photo_collage_list = await req.get_specialist_photos(user_id, SpecialistPhotoType.COLLAGE)
+            if photo_collage_list:
+                photo_data = photo_collage_list[0]
+                collage_location = photo_data[0]
+                collage_name = photo_data[1]
+                collage_path = f"{settings.path_root}/{collage_location}/{collage_name}"
+                if not os.path.exists(collage_path):
+                    collage_location = res.photo_location
+                    collage_name = res.photo_name
+            else:
                 collage_location = res.photo_location
                 collage_name = res.photo_name
 
