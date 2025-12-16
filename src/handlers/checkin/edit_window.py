@@ -411,7 +411,16 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         with open(path_to_collage, "wb") as f:
             f.write(buff_collage.getvalue())
 
+        moderate_collage = ModerateSpecialistPhoto(
+            specialist_id=user_id,
+            photo_location=f"{settings.NEW_COLLAGE_IMG}",
+            photo_name=f"{user_id}_collage.jpg",
+            photo_type=SpecialistPhotoType.COLLAGE,
+            created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None),
+            photo_telegram_id=None
+        )
 
+        await req.save_profile_data(moderate_collage)
 
     log_moderate = ModerateLog(
         user_id=user_id,
