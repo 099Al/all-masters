@@ -13,11 +13,14 @@ class Settings(BaseSettings):
     PASS: str
     DB: str
     ENGINE: str
+    POOL_ENGINE: str
 
     TOKEN_ID: str
     BOT_ID: str
 
     GPT_KEY: str
+
+    REDIS_URL: str
 
     #instead load_dotenv()
     path_root: str = str(Path(__file__).resolve().parent.parent)
@@ -27,6 +30,10 @@ class Settings(BaseSettings):
     @property
     def connect_url(self):
         return f'{self.ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
+
+    @property
+    def pool_url(self):
+        return f'{self.POOL_ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
 
     IMAGES: str = 'images'
     WORKS_IMG: str = 'images/works'
