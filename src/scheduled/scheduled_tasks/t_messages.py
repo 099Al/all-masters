@@ -5,11 +5,10 @@ from collections import defaultdict
 from aiogram import Bot
 from taskiq import TaskiqDepends
 
-from src.config_paramaters import BATCH_MESSAGE_LIMIT
+from src.config_paramaters import BATCH_MESSAGE_LIMIT, SCHEDULE_MESSAGES_TO_USERS
 from src.database.requests_db import ReqData
-from src.database.scheduled_processes import ServiceManager
-from src.scheduled.messages.db import get_pool
-from src.scheduled.messages.tkq import broker
+#from src.scheduled.db import get_pool
+from src.scheduled.tkq import broker
 from aiogram.exceptions import TelegramRetryAfter
 
 # ---- Настройки троттлинга ----
@@ -56,15 +55,17 @@ async def send_with_throttling(bot: Bot, chat_id: int, text: str) -> bool:
 
 # ЕЖЕЧАСНЫЙ CRON. cron_offset — локальная зона (Азия/Алматы).
 @broker.task(
-    task_name="broadcast_pending_user_messages",
-    schedule=[{"cron": "* * * * *", "cron_offset": "Asia/Almaty"}],
+    task_name="mailing_user_messages",
+    schedule=[SCHEDULE_MESSAGES_TO_USERS],
 )
-async def broadcast_pending(bot: Bot = TaskiqDepends()) -> int:
+async def mailing_pending(bot: Bot = TaskiqDepends()) -> int:
     """
     Берём все сообщения, где scheduled_at <= now() и sent_at IS NULL,
     отправляем и помечаем как доставленные. Возвращаем кол-во отправок.
     """
-    pool = await get_pool()
+    #pool = await get_pool()
+
+    print("==================broadcast_pending_user_messages")
 
     BATCH = BATCH_MESSAGE_LIMIT
     db = ReqData()
@@ -106,17 +107,3 @@ async def broadcast_pending(bot: Bot = TaskiqDepends()) -> int:
 
     return total_sent
 
-
-svc = ServiceManager()
-
-@broker.task(
-    task_name="update_statuses",
-    # run every 15 minutes (change as needed)
-    schedule=[{"cron": "*/15 * * * *", "cron_offset": "Asia/Almaty"}],
-)
-async def update_statuses() -> None:
-    """
-    Periodic task that runs ServiceManager.call_update_statuses()
-    every 15 minutes.
-    """
-    await svc.call_update_statuses()

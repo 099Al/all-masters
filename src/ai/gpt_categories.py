@@ -1,6 +1,4 @@
-import difflib
 from openai import OpenAI
-import re
 from src.config import settings
 
 openai_api_key = settings.GPT_KEY
