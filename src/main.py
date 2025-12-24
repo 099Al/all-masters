@@ -19,7 +19,7 @@ from redis.asyncio import Redis
 from enum import Enum
 
 from src.log_config import *
-from src.scheduled.db import init_pool
+#from src.scheduled.db import init_pool
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +43,9 @@ storage = RedisStorage(redis=redis, key_builder=DefaultKeyBuilder(with_destiny=T
 dp = Dispatcher(storage=storage)
 
 
-@dp.startup()
-async def on_startup(*_):
-    await init_pool()
+# @dp.startup()
+# async def on_startup(*_):
+#     await init_pool()
 
 
 
