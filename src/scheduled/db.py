@@ -1,5 +1,4 @@
 import asyncpg
-import os
 
 from src.config import settings
 

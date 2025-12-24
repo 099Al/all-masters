@@ -19,7 +19,7 @@ from redis.asyncio import Redis
 from enum import Enum
 
 from src.log_config import *
-from src.scheduled.messages.db import init_pool
+from src.scheduled.db import init_pool
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ def dumps_with_enum(obj):
         # Last resort fallback (optional):
         return str(o)
     return json.dumps(obj, default=default)
-redis = Redis(host='localhost', port=6379, db=0)
+redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB_FSM)
 storage = RedisStorage(redis=redis, key_builder=DefaultKeyBuilder(with_destiny=True), json_dumps=dumps_with_enum)
 
 
