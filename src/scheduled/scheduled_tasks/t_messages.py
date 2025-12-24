@@ -65,7 +65,6 @@ async def mailing_pending(bot: Bot = TaskiqDepends()) -> int:
     """
     #pool = await get_pool()
 
-    print("==================broadcast_pending_user_messages")
 
     BATCH = BATCH_MESSAGE_LIMIT
     db = ReqData()
