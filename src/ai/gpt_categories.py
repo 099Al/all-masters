@@ -1,7 +1,6 @@
-from openai import OpenAI
-from src.config import settings
+from src.ai.gpt_query import ai_query
 
-openai_api_key = settings.GPT_KEY
+
 
 def ai_define_category_from_specialties(categories_list: list[str], category_services_list: dict, services_text: str, about: str):
 
@@ -39,24 +38,6 @@ def ai_define_category_from_specialties(categories_list: list[str], category_ser
         "work_types": ["work_type1", "work_type2"]
     """
 
-
-    #return prompt
-
-    client = OpenAI(api_key=settings.GPT_KEY)
-
-
-    resp = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-            "role": "system",
-            "content": "Return the answer strictly as JSON. Do not include any extra text."
-            },
-            {"role": "user", "content": prompt
-             }
-        ],
-        temperature=0,
-        response_format={"type": "json_object"},
-    )
+    resp = ai_query(prompt)
 
     return resp.choices[0].message.content.strip()
