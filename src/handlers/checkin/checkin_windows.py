@@ -15,7 +15,7 @@ from aiogram import Bot, F
 from PIL import Image
 
 from src.config import settings
-from src.config_paramaters import UTC_PLUS_5
+from src.config_paramaters import configs
 from src.database.connect import DataBase
 from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus, SpecialistPhoto, \
     SpecialistPhotoType, ModerateSpecialistPhoto
@@ -345,7 +345,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             photo_telegram=img_telegram_id,
             photo_location=face_local_path,
             photo_name=face_local_name,
-            updated_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+            updated_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None)
         )
 
         specialist = Specialist(
@@ -360,7 +360,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
             photo_telegram=img_telegram_id,
             photo_location=face_local_path,
             photo_name=face_local_name,
-            created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+            created_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None)
         )
 
         req = ReqData()
@@ -380,7 +380,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
                     photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
                     photo_telegram_id=pid,
                     photo_type=SpecialistPhotoType.WORKS,
-                    created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+                    created_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None)
                 )
                for k, pid in enumerate(photo_values)
             ]
@@ -402,7 +402,7 @@ async def getter_answer(dialog_manager: DialogManager, bot: Bot, event_from_user
                 photo_name=f"{user_id}_collage.jpg",
                 photo_telegram_id=None,
                 photo_type=SpecialistPhotoType.COLLAGE,
-                created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+                created_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None)
             )
             await req.save_profile_data(photo_collage)
 
