@@ -1,4 +1,3 @@
-# tools/reload_config.py
 import asyncio
 from redis.asyncio import Redis
 
