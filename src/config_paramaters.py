@@ -3,6 +3,13 @@ import json
 import asyncio
 from dataclasses import dataclass, field
 from datetime import timezone, timedelta
+
+import json
+from sqlalchemy import select
+
+from src.database.models import Config
+
+
 from typing import Any
 
 CONFIG_KEY = "app:config:json"
@@ -69,3 +76,26 @@ async def reload_from_redis(redis) -> None:
     Принудительно перечитать Redis -> локальный settings.
     """
     await load_from_redis(redis)
+
+
+def _parse(v: str):
+    try:
+        return json.loads(v)
+    except Exception:
+        return v
+
+
+async def sync_config_from_db(async_sessionmaker, redis) -> dict:
+    """
+    1) читает key/value из БД
+    2) кладёт в Redis одним JSONом
+    3) pubsub notify
+    """
+    async with async_sessionmaker() as session:
+        result = await session.execute(select(Config.key, Config.value))
+        rows = result.all()
+
+    data = {k: _parse(v) for k, v in rows}
+    await save_to_redis(redis, data)
+    await publish_updated(redis)
+    return data

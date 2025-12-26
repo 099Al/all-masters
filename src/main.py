@@ -7,9 +7,9 @@ from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums.parse_mode import ParseMode
 
 from src.config import settings
-from src.config_paramaters import load_from_redis, reload_from_redis, CONFIG_CHANNEL
+from src.config_paramaters import load_from_redis, reload_from_redis, CONFIG_CHANNEL, sync_config_from_db
 from src.config_paramaters import configs
-from src.config_sync import sync_config_from_db
+
 from src.database.connect import DataBase
 
 from src.handlers.maintenance_middleware import MaintenanceMiddleware
@@ -76,8 +76,8 @@ async def start():
     # 3) слушать pubsub и обновлять локально
     asyncio.create_task(config_listener(redis_config))
 
-    dp["redis"] = redis
-    dp["db_sm"] = sm
+    #dp["redis"] = redis
+    #dp["db_sm"] = sm
 
 
     mw = MaintenanceMiddleware(

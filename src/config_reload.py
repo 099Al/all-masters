@@ -2,8 +2,9 @@ import asyncio
 from redis.asyncio import Redis
 
 from src.config import settings
+from src.config_paramaters import sync_config_from_db
 from src.database.connect import DataBase
-from src.config_sync import sync_config_from_db
+
 
 async def main():
     db = DataBase()
