@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int
     REDIS_DB_FSM: int
     REDIS_DB_TASKS: int
+    REDIS_DB_CONFIG: int
 
     #instead load_dotenv()
     path_root: str = str(Path(__file__).resolve().parent.parent)

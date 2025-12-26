@@ -13,7 +13,7 @@ from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from PIL import Image
 
 from src.config import settings
-from src.config_paramaters import UTC_PLUS_5
+from src.config_paramaters import configs
 from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog, \
     ModerateSpecialistPhoto, SpecialistPhotoType
 from src.database.requests_db import ReqData
@@ -311,7 +311,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
         photo_telegram=img_telegram_id or dialog_manager.start_data['photo_telegram'],
         photo_location=location_path or dialog_manager.start_data['photo_location'],
         photo_name=name_photo or dialog_manager.start_data['photo_name'],
-        updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None),
+        updated_at=datetime.now(configs.UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None),
         message_to_admin=dialog_manager.dialog_data.get('message_to_admin')
     )
 
@@ -344,7 +344,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
                 photo_name=f"{user_id}_{str(k)}_{digit_hash(pid)}.jpg",
                 photo_telegram_id=pid,
                 photo_type=SpecialistPhotoType.WORKS,
-                created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None)
+                created_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None)
             )
             for k, pid in enumerate(photo_values)
         ]
@@ -416,7 +416,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
             photo_location=f"{settings.NEW_COLLAGE_IMG}",
             photo_name=f"{user_id}_collage.jpg",
             photo_type=SpecialistPhotoType.COLLAGE,
-            created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None),
+            created_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None),
             photo_telegram_id=None
         )
 
@@ -425,7 +425,7 @@ async def edit_confirm(callback: CallbackQuery, button: Button, dialog_manager: 
 
     log_moderate = ModerateLog(
         user_id=user_id,
-        updated_at=datetime.now(UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None)
+        updated_at=datetime.now(configs.UTC_PLUS_5).replace(microsecond=0).replace(tzinfo=None)
     )
 
     await req.save_profile_data(log_moderate)

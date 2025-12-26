@@ -9,7 +9,7 @@ from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
 from src.config import settings
-from src.config_paramaters import EDIT_REQUEST_LIMIT
+from src.config_paramaters import configs
 from src.database.models import UserStatus, Specialist, ModerateStatus
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
@@ -59,7 +59,7 @@ async def getter_info(dialog_manager: DialogManager, **kwargs):
     cnt_req = await req.get_cnt_edit_request(data['user_id'])
 
 
-    if cnt_req >= EDIT_REQUEST_LIMIT:
+    if cnt_req >= configs.EDIT_REQUEST_LIMIT:
         await req.update_specialist(data['user_id'], moderate_result=ModerateStatus.DELAY)
         moderate_result = ModerateStatus.DELAY
         data_info["available_change"] = False

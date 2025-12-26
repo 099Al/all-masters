@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.kbd import RequestContact
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
 
-from src.config_paramaters import UTC_PLUS_5
+from src.config_paramaters import configs
 from src.database.models import Users
 from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog, CheckinUserDialog
@@ -63,7 +63,7 @@ async def contact_message(message: Message, widget: MessageInput, dialog_manager
         id=message.from_user.id,
         phone=phone,
         telegram=tg,
-        created_at=datetime.now(UTC_PLUS_5).replace(tzinfo=None),
+        created_at=datetime.now(configs.UTC_PLUS_5).replace(tzinfo=None),
     )
 
     req = ReqData()

@@ -7,7 +7,9 @@ from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums.parse_mode import ParseMode
 
 from src.config import settings
-from src.config_paramaters import ADMIN_IDS
+from src.config_paramaters import load_from_redis, reload_from_redis, CONFIG_CHANNEL, sync_config_from_db
+from src.config_paramaters import configs
+
 from src.database.connect import DataBase
 
 from src.handlers.maintenance_middleware import MaintenanceMiddleware
@@ -26,6 +28,12 @@ logger = logging.getLogger(__name__)
 
 bot = Bot(token=settings.TOKEN_ID, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
+async def config_listener(redis):
+    pubsub = redis.pubsub()
+    await pubsub.subscribe(CONFIG_CHANNEL)
+    async for msg in pubsub.listen():
+        if msg.get("type") == "message":
+            await reload_from_redis(redis)
 
 
 def dumps_with_enum(obj):
@@ -56,15 +64,32 @@ async def start():
 
     await set_menu(bot)
 
+
+    # 1) при старте: синкнуть БД -> Redis (если хочешь)
+    redis_config = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB_CONFIG)
+    sm = db.get_session()
+    await sync_config_from_db(sm, redis_config)
+
+    # 2) загрузить локально из Redis
+    await load_from_redis(redis_config)
+
+    # 3) слушать pubsub и обновлять локально
+    asyncio.create_task(config_listener(redis_config))
+
+    #dp["redis"] = redis
+    #dp["db_sm"] = sm
+
+
     mw = MaintenanceMiddleware(
         enabled=True,  # стартуем в режиме техработ
-        admin_ids=ADMIN_IDS,
+        admin_ids=configs.ADMIN_IDS,
         allowed_commands={"/help"},  # /help доступен всем
         reply_text="⚙️ Сервис временно недоступен. Идут технические работы."
     )
     dp.message.outer_middleware(mw)
     dp.callback_query.outer_middleware(mw)
     dp["maintenance_mw"] = mw
+
 
     add_routers(dp)
     setup_dialogs(dp)
