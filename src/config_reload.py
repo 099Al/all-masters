@@ -18,7 +18,7 @@ async def main():
 
     await sync_config_from_db(sm, redis_config)
 
-    await redis_config.close()
+    await redis_config.aclose()
     print("OK: config synced DB -> Redis and published")
 
 if __name__ == "__main__":
