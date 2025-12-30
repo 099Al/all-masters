@@ -13,6 +13,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 2
+    networks:
+      - all-masters-net
 
   redis:
     image: redis:7-alpine
@@ -26,6 +28,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    networks:
+      - all-masters-net
 
   app:
     container_name: all-masters-app
@@ -39,8 +43,8 @@ services:
       - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/collages:/images/collages"
       - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/defaults:/images/defaults"
       - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_avatars:/images/new_avatars"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_avatars:/images/new_collages"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_avatars:/images/new_works"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_collages:/images/new_collages"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_works:/images/new_works"
       - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/works:/images/works"
     depends_on:
       db:
@@ -48,7 +52,14 @@ services:
     env_file:
       - ../.env
     restart: unless-stopped
+    networks:
+      - all-masters-net
 
+
+networks:
+  all-masters-net:
+    name: all-masters-net
+    driver: bridge
 
 #volumes:
 #  pgdata:
