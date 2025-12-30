@@ -7,11 +7,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    HOST: str
-    PORT: str
-    USER: str
-    PASS: str
-    DB: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
     ENGINE: str
     POOL_ENGINE: str
 
@@ -33,11 +33,11 @@ class Settings(BaseSettings):
 
     @property
     def connect_url(self):
-        return f'{self.ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
+        return f'{self.ENGINE}://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
 
     @property
     def pool_url(self):
-        return f'{self.POOL_ENGINE}://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
+        return f'{self.POOL_ENGINE}://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
 
     IMAGES: str = 'images'
     WORKS_IMG: str = 'images/works'
