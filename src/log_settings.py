@@ -3,7 +3,7 @@ import logging.config
 import os
 import sys
 
-LOG_FILE = 'logs/shop.log'
+LOG_FILE = 'logs/all-masters-app.log'
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 LOGGING_CONFIG = {
@@ -25,13 +25,13 @@ LOGGING_CONFIG = {
         },
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'ERROR',
+            'level': 'INFO',
             'formatter': 'default',
             'stream': 'ext://sys.stdout',
         },
     },
     'root': {
-        'level': 'ERROR',
+        'level': 'INFO',
         'handlers': ['file', 'console'],
     },
 }

@@ -20,9 +20,12 @@ from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from redis.asyncio import Redis
 from enum import Enum
 
-from src.log_config import *
+#from src.log_config import *
 #from src.scheduled.db import init_pool
 
+
+import src.log_settings
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -63,7 +66,6 @@ async def start():
     await db.create_db()
 
     await set_menu(bot)
-
 
     # 1) при старте: синкнуть БД -> Redis (если хочешь)
     redis_config = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB_CONFIG)
