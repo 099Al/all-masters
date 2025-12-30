@@ -1,16 +1,31 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy code and requirements
-COPY src /app/src
-COPY requirements.txt /app/
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_SYSTEM_PYTHON=1
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# ставим uv
+COPY --from=ghcr.io/astral-sh/uv:0.9.18 /uv /uvx /bin/
 
-# Add src to PYTHONPATH
-ENV PYTHONPATH=/app/src
+# сначала только метаданные зависимостей (для кеша)
+COPY pyproject.toml uv.lock ./
 
-# Run your app (adjust as needed)
-CMD ["python", "src/main.py"]
+# ставим зависимости строго по lock
+RUN uv sync --frozen --no-dev
+
+# затем код
+COPY . .
+
+# RUN mkdir -p /app/images \
+#              /app/images/works \
+#              /app/images/avatars \
+#              /app/images/collages \
+#              /app/images/new_avatars \
+#              /app/images/new_collages \
+#              /app/images/new_works
+
+CMD ["uv", "run", "python", "-m", "src.main"]
+
+
