@@ -104,8 +104,5 @@ async def start():
 if __name__ == '__main__':
     #logging.basicConfig(filename='logs/shop.log', level=logging.INFO)
 
-    db = settings.DB
-
-
 
     asyncio.run(start())
