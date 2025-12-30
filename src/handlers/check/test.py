@@ -24,6 +24,8 @@ async def admin_test(message: Message):
         #req = ReqData()
         #res = await req.get_user_data(user_id)
 
+        await message.answer("_admin_")
+
         info = f"user_id:{user_id}"
         # logger.info(f"Test command. Info {info}")
         logger.error(f"Test command. Info {info}")
