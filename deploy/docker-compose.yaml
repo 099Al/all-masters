@@ -39,13 +39,13 @@ services:
       dockerfile: build/Dockerfile
     volumes:
       - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/logs:/app/logs"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/avatars:/images/avatars"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/collages:/images/collages"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/defaults:/images/defaults"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_avatars:/images/new_avatars"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_collages:/images/new_collages"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_works:/images/new_works"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/works:/images/works"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/avatars:/app/images/avatars"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/collages:/app/images/collages"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/defaults:/app/images/defaults"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_avatars:/app/images/new_avatars"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_collages:/app/images/new_collages"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_works:/app/images/new_works"
+      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/works:/app/images/works"
     depends_on:
       db:
         condition: service_healthy
