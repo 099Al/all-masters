@@ -34,6 +34,7 @@ async def admin_test(message: Message):
 async def admin_test_db(message: Message):
     try:
 
+        await message.answer("test_db")
 
         user_id = message.from_user.id
 
@@ -45,5 +46,7 @@ async def admin_test_db(message: Message):
 
         info = f"user_id:{user_id}"
         logger.error(f"INFO Test command. Info {info}")
+
+        await message.answer("test_db___")
     except Exception as e:
         logger.error(f"ERROR Test command. Error {e}")
