@@ -24,6 +24,8 @@ async def admin_test(message: Message):
         #req = ReqData()
         #res = await req.get_user_data(user_id)
 
+        await message.answer("_admin_")
+
         info = f"user_id:{user_id}"
         # logger.info(f"Test command. Info {info}")
         logger.error(f"Test command. Info {info}")
@@ -34,6 +36,7 @@ async def admin_test(message: Message):
 async def admin_test_db(message: Message):
     try:
 
+        await message.answer("test_db")
 
         user_id = message.from_user.id
 
@@ -45,5 +48,7 @@ async def admin_test_db(message: Message):
 
         info = f"user_id:{user_id}"
         logger.error(f"INFO Test command. Info {info}")
+
+        await message.answer("test_db___")
     except Exception as e:
         logger.error(f"ERROR Test command. Error {e}")
