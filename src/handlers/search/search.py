@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.input import TextInput, ManagedTextInput
 
 from src.database.requests_db import ReqData
 from src.handlers.menu.start.start_state import StartDialog
-from src.handlers.parameters import BASE_URL, BASE_URL_HTTP
+from src.config import settings
 from src.handlers.search.search_state import SearchSpecialistDialog
 
 import src.log_settings
@@ -79,16 +79,16 @@ window_services = Window(
     Group(
     ListGroup(
         Url(text=Format('{item.name}'),
-            url=Const(f'{BASE_URL_HTTP}/profiles/'),
+            url=Const(f'{settings.base_url_http}/profiles/'),
             ),
             WebApp(text=Format('{item.name}'),
-            url=Const(f'{BASE_URL}/profiles/'),
+            url=Const(f'{settings.base_url_https}/profiles/'),
             ),
             id='service',
             item_id_getter=lambda x: x.id,
             items='services',
     ),
-        width = 2
+        width=2
     ),
     Back(Const("Назад"), id="back_to_category_search"),
     TextInput(
@@ -107,7 +107,7 @@ async def getter_specialists(dialog_manager: DialogManager, **kwargs):
     req = ReqData()
     res = await req.get_specialists_by_service(service_id=int(service_id))
 
-    web_app = WebAppInfo(url="http://127.0.0.1:8001/profiles/")
+    #web_app = WebAppInfo(url="http://127.0.0.1:8001/profiles/")
 
     print('getter_specialists', res)
     return {'specialists': res}

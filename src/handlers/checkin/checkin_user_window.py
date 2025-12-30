@@ -15,7 +15,7 @@ from aiogram.types import CallbackQuery, Message, User
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
 from src.handlers.menu.start.start_state import StartDialog
-from src.handlers.parameters import BASE_URL
+from src.config import settings
 
 import src.log_settings
 import logging
@@ -50,7 +50,7 @@ async def reg_user_confirm(callback: CallbackQuery, button: Button, dialog_manag
 
 window_user_checkin_rules = Window(
                 Format("Ознакомтесь с условиями использования сервиса"),
-                    Url(text=Format("Пользовательское соглашение"), url=Const(f"{BASE_URL}/message/rules")),
+                    Url(text=Format("Пользовательское соглашение"), url=Const(f"{settings.base_url_https}/message/rules")),
                     Button(Const("Соглашаюсь"), id="id_registration_user_confirm", on_click=reg_user_confirm),
                     state=CheckinUserDialog.checkin_service_rules,
 )

@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     REDIS_DB_TASKS: int
     REDIS_DB_CONFIG: int
 
+    WEB_HOST: str
+    WEB_PORT: str
+
     #instead load_dotenv()
     path_root: str = str(Path(__file__).resolve().parent.parent)
     path_env: str = str(Path(__file__).resolve().parent.parent / '.env')
@@ -38,6 +41,15 @@ class Settings(BaseSettings):
     @property
     def pool_url(self):
         return f'{self.POOL_ENGINE}://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
+
+    @property
+    def base_url_http(self):
+        return f'http://{self.WEB_HOST}' #:{self.WEB_PORT}'
+
+    @property
+    def base_url_https(self):
+        return f'https://{self.WEB_HOST}' #:{self.WEB_PORT}'
+
 
     IMAGES: str = 'images'
     WORKS_IMG: str = 'images/works'
