@@ -16,8 +16,9 @@ from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 
 from src.handlers.menu.start.start_state import StartDialog
 from src.handlers.parameters import BASE_URL
-from src.log_config import *
 
+import src.log_settings
+import logging
 logger = logging.getLogger(__name__)
 
 

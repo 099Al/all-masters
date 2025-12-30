@@ -23,10 +23,11 @@ from src.database.requests_db import ReqData
 from src.handlers.checkin.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
-from src.log_config import *
 
 from src.utils.utils import make_collage, digit_hash
 
+import src.log_settings
+import logging
 logger = logging.getLogger(__name__)
 
 

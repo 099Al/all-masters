@@ -9,10 +9,15 @@ from src.handlers.menu.start.start_state import StartDialog
 from src.handlers.parameters import BASE_URL, BASE_URL_HTTP
 from src.handlers.search.search_state import SearchSpecialistDialog
 
+import src.log_settings
+import logging
+logger = logging.getLogger(__name__)
+
 async def getter_categories(dialog_manager: DialogManager, **kwargs):
     req = ReqData()
     res = await req.get_categories(is_new=False)
     return {'categories': res}
+
 
 async def select_category(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, item_id: int):
     dialog_manager.dialog_data['category'] = item_id
