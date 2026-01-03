@@ -8,7 +8,7 @@ from sqlalchemy import select, func, text
 from sqlalchemy.orm import selectinload
 
 from src.config import settings
-from src.config_paramaters import SIMILARITY_THRESHOLD, SCHEDULE_UPDATE_STATUSES
+from src.config_paramaters import configs
 from src.ai.gpt_categories import ai_define_category_from_specialties
 from src.database.models import ModerateData, Category, Service, SpecialistPhotoType
 
@@ -83,7 +83,7 @@ class ServiceManager(ReqData):
     async def _get_or_create_category(self,
             session,
             category_name: str,
-            threshold: float = SIMILARITY_THRESHOLD
+            threshold: float = configs.SIMILARITY_THRESHOLD
     ):
         """
         Ищет категорию по смысловой близости (similarity).
@@ -120,7 +120,7 @@ class ServiceManager(ReqData):
             session,
             service_name: str,
             category_id: int,
-            threshold: float = SIMILARITY_THRESHOLD
+            threshold: float = configs.SIMILARITY_THRESHOLD
     ):
         """
         Ищет услугу по смысловой близости (similarity) внутри категории.
@@ -159,7 +159,7 @@ class ServiceManager(ReqData):
                                      session,
                                      service_names: list[str],
                                      category_id: int,
-                                     threshold: float = SIMILARITY_THRESHOLD
+                                     threshold: float = configs.SIMILARITY_THRESHOLD
     ):
         """
         Массовая обработка списка услуг.
@@ -217,6 +217,7 @@ class ServiceManager(ReqData):
                     id,
                     session,
                     l_services=[service.name for service in services_obj],
+                    l_service_ids=[(service.category_id, service.id) for service in services_obj],
                     l_work_types=work_types_name,
                     applied_category=True
                 )
@@ -233,13 +234,15 @@ svc = ServiceManager()
 @broker.task(
     task_name="update_statuses",
     # run every 15 minutes (change as needed)
-    schedule=[SCHEDULE_UPDATE_STATUSES],
+    schedule=[configs.SCHEDULE_UPDATE_STATUSES],
 )
 async def update_statuses() -> None:
     """
     Periodic task that runs ServiceManager.call_update_statuses()
     every 15 minutes.
     """
+    await req.define_services()
+
     await svc.call_update_statuses()
 
 
