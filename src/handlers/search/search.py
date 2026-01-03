@@ -78,11 +78,10 @@ window_services = Window(
     Format("Выберите услугу"),
     Group(
     ListGroup(
-        Url(text=Format('{item.name}'),
-            url=Const(f'{settings.base_url_http}/profiles/'),
-            ),
-            WebApp(text=Format('{item.name}'),
-            url=Const(f'{settings.base_url_https}/profiles/'),
+        # Url(text=Format('{item.name}'), url=Const(f'{settings.base_url_http}/profiles/'),),
+            WebApp(
+                text=Format('{item.name}'),
+                url=Format(f'{settings.base_url_https}/profiles/{{item.id}}'),
             ),
             id='service',
             item_id_getter=lambda x: x.id,
