@@ -1,7 +1,8 @@
 import json
 import logging
 from src.ai.gpt_message import ai_validate_message
-from src.config_paramaters import SCHEDULE_UPDATE_STATUSES, SCHEDULE_VALIDATE_MESSAGES
+
+from src.config_paramaters import configs
 
 from src.database.requests_db import ReqData
 
@@ -44,7 +45,7 @@ validate = ValidateMessages()
 
 @broker.task(
     task_name="validate_messages",
-    schedule=[SCHEDULE_VALIDATE_MESSAGES],
+    schedule=[configs.SCHEDULE_VALIDATE_MESSAGES],
 )
 async def validate_messages() -> None:
     await validate.call_validate_messages()
