@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     REDIS_DB_TASKS: int
     REDIS_DB_CONFIG: int
 
-    WEB_HOST: str
+    WEB_PUBLIC_URL: str
     WEB_PORT: str
 
     #instead load_dotenv()
@@ -44,11 +44,11 @@ class Settings(BaseSettings):
 
     @property
     def base_url_http(self):
-        return f'http://{self.WEB_HOST}' #:{self.WEB_PORT}'
+        return f'http://{self.WEB_PUBLIC_URL}' #:{self.WEB_PORT}'
 
     @property
     def base_url_https(self):
-        return f'https://{self.WEB_HOST}' #:{self.WEB_PORT}'
+        return f'https://{self.WEB_PUBLIC_URL}' #:{self.WEB_PORT}'
 
 
     IMAGES: str = 'images'
