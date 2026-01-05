@@ -1,4 +1,35 @@
 Запуск через docker:
+    1 нужно создать общую сеть
+    Пример: docker network create  --driver bridge all-masters-net
+    Далее запускаются остальные контейнеры.
+    2 если тестируется только all-masters, то сеть можно создать в docker-compose.yml
+    3 если запускается web
+      то создавать сеть нужно в all-masters-web docker-compose.yml
+      там же создается tunnel
+      После этого берем адрес
+      deploy>docker logs -f all-masters-web-tunnel
+      этот адрес подставляется в .env в all-masters в WEB_PUBLIC_URL
+      Затем запускается деплой all-masters  docker-compose.yml
+      В этом случае в docker-compose.yml не нужно создавать сеть, нужно указать сеть all-masters-net
+      Пример:
+      networks:
+          all-masters-net:
+            external: true
+            name: all-masters-net
+
+      При смене URL к контейнеру надо поменять его в Telegram
+
+      @BotFather -> /mybots ->  Bot Settings -> Menu Buttons -> Configure menu buttons
+      отправить url из tunnel
+
+      4 При запуске на хостинге tunnel не нужен.
+        Нужно настроить nginx
+
+
+
+
+
+
     deploy>docker compose up -d
     Директори создаются автоматически.
     Нужно будет  создать процедуры
