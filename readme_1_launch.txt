@@ -22,7 +22,11 @@
       @BotFather -> /mybots ->  Bot Settings -> Menu Buttons -> Configure menu buttons
       отправить url из tunnel
 
-      4 При запуске на хостинге tunnel не нужен.
+      4 При запуске локально.
+        Нужно указать .env.dev в Edit Configurations в PyCharm в Path to .env
+        WEB_PUBLIC_URL - нужно взять из ngrok
+
+      5 При запуске на хостинге tunnel не нужен.
         Нужно настроить nginx
 
 
