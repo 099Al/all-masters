@@ -10,9 +10,8 @@ from aiogram_dialog import DialogManager
 from src.config import settings
 from src.database.models import UserStatus, SpecialistPhotoType, ModerateStatus
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog, CheckinUserDialog
+from src.handlers.states.profile_state import CheckinDialog, CheckinUserDialog
 
-import src.log_settings
 import logging
 logger = logging.getLogger(__name__)
 
