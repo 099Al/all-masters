@@ -55,11 +55,17 @@ services:
     networks:
       - all-masters-net
 
-
+#Использование сети, созданной ранее
 networks:
   all-masters-net:
+    external: true
     name: all-masters-net
-    driver: bridge
+
+#Создание сети при запуске
+#networks:
+#  all-masters-net:
+#    name: all-masters-net
+#    driver: bridge
 
 #volumes:
 #  pgdata:
