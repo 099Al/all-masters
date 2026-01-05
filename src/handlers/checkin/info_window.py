@@ -10,11 +10,10 @@ from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
 from src.config import settings
 from src.config_paramaters import configs
-from src.database.models import UserStatus, Specialist, ModerateStatus
+from src.database.models import UserStatus, ModerateStatus
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
+from src.handlers.states.profile_state import CheckinDialog, EditDialog
 
-import src.log_settings
 import logging
 logger = logging.getLogger(__name__)
 

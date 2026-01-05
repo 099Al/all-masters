@@ -1,17 +1,29 @@
-from aiogram.types import CallbackQuery, Message, WebAppInfo
+from aiogram import Router
+from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.widgets.kbd import Button, Back, Select, Group, Url, WebApp, ListGroup
+from aiogram_dialog.widgets.kbd import Button, Back, Select, Group, WebApp, ListGroup
 from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput
+from aiogram.filters import Command
+
 
 from src.database.requests_db import ReqData
-from src.handlers.menu.start.start_state import StartDialog
+from src.handlers.states.start_state import StartDialog
 from src.config import settings
-from src.handlers.search.search_state import SearchSpecialistDialog
+from src.handlers.states.search_state import SearchSpecialistDialog
 
-import src.log_settings
 import logging
 logger = logging.getLogger(__name__)
+
+search_router = Router()
+
+@search_router.message(Command(commands='search'))
+async def search(message: Message, dialog_manager: DialogManager):
+    try:
+        await dialog_manager.start(SearchSpecialistDialog.category, mode=StartMode.RESET_STACK)
+        print(1)
+    except Exception as e:
+        logger.error(f"Error in search. bot_id: {message.bot.id}. {e}")
 
 async def getter_categories(dialog_manager: DialogManager, **kwargs):
     req = ReqData()
@@ -31,7 +43,6 @@ async def serch_by_user_input(message: Message, widget: ManagedTextInput, dialog
     req = ReqData()
     l_spec = await req.find_specialists_by_similarity(text)
     #TODO: перевести в состояние
-    print(l_spec)
     return {'specialists': l_spec}
 
 
@@ -108,12 +119,12 @@ async def getter_specialists(dialog_manager: DialogManager, **kwargs):
 
     #web_app = WebAppInfo(url="http://127.0.0.1:8001/profiles/")
 
-    print('getter_specialists', res)
     return {'specialists': res}
 
 async def select_specialist(callback: CallbackQuery, button: Button, dialog_manager: DialogManager, item_id: int):
     print('select_specialist')
     print(item_id)
+
 
 window_specialists = Window(
     Format("Выберите специалиста"),

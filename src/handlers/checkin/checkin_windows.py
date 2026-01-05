@@ -16,17 +16,14 @@ from PIL import Image
 
 from src.config import settings
 from src.config_paramaters import configs
-from src.database.connect import DataBase
-from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus, SpecialistPhoto, \
-    SpecialistPhotoType, ModerateSpecialistPhoto
+from src.database.models import Specialist, ModerateData, ModerateStatus, UserStatus, SpecialistPhotoType, ModerateSpecialistPhoto
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog
+from src.handlers.states.profile_state import CheckinDialog
 from aiogram.types import CallbackQuery
 
 
 from src.utils.utils import make_collage, digit_hash
 
-import src.log_settings
 import logging
 logger = logging.getLogger(__name__)
 

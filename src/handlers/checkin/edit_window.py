@@ -4,7 +4,7 @@ from io import BytesIO
 
 from aiogram.types import ContentType
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog import DialogManager, Window
 from aiogram_dialog.widgets.kbd import Button, Back, Next, Cancel, RequestContact
 from aiogram_dialog.widgets.text import Format, Const
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput, MessageInput
@@ -14,14 +14,13 @@ from PIL import Image
 
 from src.config import settings
 from src.config_paramaters import configs
-from src.database.models import Specialist, UserStatus, ModerateData, ModerateStatus, ModerateLog, \
+from src.database.models import ModerateData, ModerateStatus, ModerateLog, \
     ModerateSpecialistPhoto, SpecialistPhotoType
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog, EditDialog
+from src.handlers.states.profile_state import EditDialog
 
 from src.utils.utils import make_collage, digit_hash
 
-import src.log_settings
 import logging
 logger = logging.getLogger(__name__)
 

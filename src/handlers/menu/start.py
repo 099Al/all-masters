@@ -11,14 +11,13 @@ from aiogram_dialog.widgets.text import Format, Const
 from src.config import settings
 from src.database.models import UserStatus, SpecialistPhotoType
 from src.database.requests_db import ReqData
-from src.handlers.checkin.profile_state import CheckinDialog, CheckinUserDialog
-from src.handlers.menu.start.start_state import StartDialog
+from src.handlers.states.profile_state import CheckinDialog, CheckinUserDialog
+from src.handlers.states.start_state import StartDialog
 
 
 
-from src.handlers.search.search_state import SearchSpecialistDialog
+from src.handlers.states.search_state import SearchSpecialistDialog
 
-import src.log_settings
 import logging
 logger = logging.getLogger(__name__)
 
