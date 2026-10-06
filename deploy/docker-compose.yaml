@@ -1,11 +1,11 @@
-services:
+﻿services:
   db:
     image: postgres:16-alpine
     env_file:
       - ../.env
     volumes:
 #      - pgdata:/var/lib/postgresql/data
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/db:/var/lib/postgresql/data"
+      - "../../volumes/db:/var/lib/postgresql/data"
     ports:
       - "5437:5432"
     healthcheck:
@@ -22,7 +22,7 @@ services:
       - "6378:6379"
     volumes:
       #- redisdata:/data
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/redis:/data"
+      - "../../volumes/redis:/data"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -38,14 +38,14 @@ services:
       context: ..            # корень проекта
       dockerfile: build/Dockerfile
     volumes:
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/logs:/app/logs"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/avatars:/app/images/avatars"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/collages:/app/images/collages"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/defaults:/app/images/defaults"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_avatars:/app/images/new_avatars"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_collages:/app/images/new_collages"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/new_works:/app/images/new_works"
-      - "G:/WorkSpaces/PythonWs/telegram/project-all-masters/images/works:/app/images/works"
+      - "../../volumes/logs:/app/logs"
+      - "../../volumes/images/avatars:/app/images/avatars"
+      - "../../volumes/images/collages:/app/images/collages"
+      - "../../volumes/images/defaults:/app/images/defaults"
+      - "../../volumes/images/new_avatars:/app/images/new_avatars"
+      - "../../volumes/images/new_collages:/app/images/new_collages"
+      - "../../volumes/images/new_works:/app/images/new_works"
+      - "../../volumes/images/works:/app/images/works"
     depends_on:
       db:
         condition: service_healthy

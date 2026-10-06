@@ -1,4 +1,4 @@
-Запуск через docker:
+﻿Запуск через docker:
     1 нужно создать общую сеть
     Пример: docker network create  --driver bridge all-masters-net
     Далее запускаются остальные контейнеры.
@@ -77,13 +77,13 @@
         scripts/db/update_statuses.sql
 
 - Создаются расшаренные директории, общие с проектом all-masters-web
-    >mklink /D images\default G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\default
-    >mklink /D images\avatars G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\avatars
-    >mklink /D images\works G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\works
-    >mklink /D images\collages G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\collages
-    >mklink /D images\new_avatars G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\new_avatars
-    >mklink /D images\new_works G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\new_works
-    >mklink /D images\new_collages G:\WorkSpaces\PythonWs\telegram\project-all-masters\images\new_collages
+    >mklink /D images\default G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\default
+    >mklink /D images\avatars G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\avatars
+    >mklink /D images\works G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\works
+    >mklink /D images\collages G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\collages
+    >mklink /D images\new_avatars G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\new_avatars
+    >mklink /D images\new_works G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\new_works
+    >mklink /D images\new_collages G:\WorkSpaces\PythonWs\telegram\project-all-masters\volumes\images\new_collages
 
 
 -Запуск redis
