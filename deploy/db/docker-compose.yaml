@@ -1,0 +1,20 @@
+version: '3.8'
+
+#файл для созхдания базы в wsl. При запуске проекто локально.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pg-16-aplpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres      # Change this to your desired username
+      POSTGRES_PASSWORD: pass  # Change this to your desired password
+      POSTGRES_DB: all_masters    # Change this to your desired database name
+    ports:
+      - "5436:5432"
+    volumes:
+      - /home/aleks/docker_files/pg/pg_16/db/data:/var/lib/postgresql/data  # Persistent data storage
+
+
+
